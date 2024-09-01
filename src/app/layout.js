@@ -16,8 +16,8 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <PrimeReactProvider>
-      <html lang="en">
-        <body className={inter.className}>{children}</body>
+      <html lang="en" >
+        <body className={inter.className} style={{margin:0, padding:0, height:"100vh", width:"100vw", overflowX:"hidden"}}>{children}</body>
       </html>
     </PrimeReactProvider>
   );
