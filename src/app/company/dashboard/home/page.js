@@ -1,9 +1,9 @@
 "use client";
 import React, { useState } from "react";
-import CardInfoInicio from "@/components/company/home/CardInfo";
+import CardInfoInicio from "./components/CardInfo";
 import { Box } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import TableHome from "@/components/company/home/TableHome";
+import TableHome from "./components/TableHome";
 
 export default function home() {
   return (

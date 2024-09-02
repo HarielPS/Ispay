@@ -3,7 +3,7 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Button } from "primereact/button";
 import { FilterMatchMode, FilterOperator } from "primereact/api";
-import UserColumn from "./Table/UserColumn";
+import UserColumn from "./UserColumn";
 
 export default function TableHome() {
   const [rowClick, setRowClick] = useState(true);
