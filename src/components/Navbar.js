@@ -1,16 +1,58 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "primereact/button";
-import SideBar from "./SideBar";
 import { Menubar } from "primereact/menubar";
 import { InputText } from "primereact/inputtext";
 import { Badge } from "primereact/badge";
 import { Avatar } from "primereact/avatar";
+import { useRouter } from "next/navigation";
+
+//options on navbar
+import { any } from "./helpers/any.navbar";
+import { company } from "./helpers/company.navbar";
+
 
 export default function Navbar() {
-  const [visibleSidebar,setVisibleSidebar] = useState(false);
+  const router = useRouter();
+  const [menuItems, setMenuItems] = useState([]);
+  const handleChangeRoute = (route) => {
+    router.push(route);
+  };
+  const mapItems = (items, handleChangeRoute) => {
+    return items.map((item) => {
+      if (item.items) {
+        // Si el item tiene sub-items, recursivamente aplica el mapeo
+        return {
+          ...item,
+          items: mapItems(item.items, handleChangeRoute),
+        };
+      }
+      // Si el item tiene una ruta, agrega el command
+      return {
+        ...item,
+        command: item.route
+          ? () => handleChangeRoute(item.route)
+          : item.command,
+      };
+    });
+  };
 
-  const itemRenderer = (item) => (
+  useEffect(()=> {console.log("ruta:" + router.pathname)},[])
+  useEffect(() => {
+    switch (router.pathname) {
+      case "/":
+        setMenuItems(mapItems(any, handleChangeRoute));
+        break;
+      case "/company":
+        setMenuItems(mapItems(company, handleChangeRoute));
+        break;
+      default:
+        setMenuItems(mapItems(any, handleChangeRoute));
+        break;
+    }
+  }, [router.pathname]);
+
+  /* const itemRenderer = (item) => (
     <a className="flex align-items-center p-menuitem-link">
       <span className={item.icon} />
       <span className="mx-2">{item.label}</span>
@@ -21,68 +63,7 @@ export default function Navbar() {
         </span>
       )}
     </a>
-  );
-  const items = [
-    {
-      label: "Home",
-      icon: "pi pi-home",
-    },
-    {
-      label: "Features",
-      icon: "pi pi-star",
-    },
-    {
-      label: "Projects",
-      icon: "pi pi-search",
-      items: [
-        {
-          label: "Core",
-          icon: "pi pi-bolt",
-          shortcut: "⌘+S",
-          template: itemRenderer,
-        },
-        {
-          label: "Blocks",
-          icon: "pi pi-server",
-          shortcut: "⌘+B",
-          template: itemRenderer,
-        },
-        {
-          label: "UI Kit",
-          icon: "pi pi-pencil",
-          shortcut: "⌘+U",
-          template: itemRenderer,
-        },
-        {
-          separator: true,
-        },
-        {
-          label: "Templates",
-          icon: "pi pi-palette",
-          items: [
-            {
-              label: "Apollo",
-              icon: "pi pi-palette",
-              badge: 2,
-              template: itemRenderer,
-            },
-            {
-              label: "Ultima",
-              icon: "pi pi-palette",
-              badge: 3,
-              template: itemRenderer,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      label: "Contact",
-      icon: "pi pi-envelope",
-      badge: 3,
-      template: itemRenderer,
-    },
-  ];
+  ); */
 
   const start = (
     <img
@@ -90,9 +71,9 @@ export default function Navbar() {
       src="https://primefaces.org/cdn/primereact/images/logo.png"
       height="40"
       className="mr-2"
-      onClick={()=> setVisibleSidebar(!visibleSidebar)}
     ></img>
   );
+
   const end = (
     <div className="flex align-items-center gap-2">
       <InputText
@@ -106,12 +87,12 @@ export default function Navbar() {
       />
     </div>
   );
+
   return (
-    <div style={{width:"100vw", overflow:"hidden"}}>
+    <div style={{ width: "100vw", overflow: "hidden" }}>
       <div className="card">
-        <Menubar model={items} start={start} end={end} />
+        <Menubar model={menuItems} start={start} end={end} />
       </div>
-      <SideBar visibleSidebar= {visibleSidebar} setVisibleSidebar={setVisibleSidebar} />
     </div>
   );
 }
