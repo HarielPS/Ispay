@@ -1,6 +1,5 @@
 "use client";
 import React, { useState } from "react";
-import { Button } from "primereact/button";
 import SideBar from "@/components/SideBar";
 import { Menubar } from "primereact/menubar";
 import { InputText } from "primereact/inputtext";
@@ -119,10 +118,6 @@ export default function layout({ children }) {
       <div className="card">
         <Menubar model={items} start={start} end={end} />
       </div>
-      <SideBar
-        visibleSidebar={visibleSidebar}
-        setVisibleSidebar={setVisibleSidebar}
-      />
       {children}
     </div>
   );
