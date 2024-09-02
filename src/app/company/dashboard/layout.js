@@ -6,8 +6,10 @@ import { Menubar } from "primereact/menubar";
 import { InputText } from "primereact/inputtext";
 import { Badge } from "primereact/badge";
 import { Avatar } from "primereact/avatar";
+import { useRouter } from "next/navigation";
 
 export default function layout({ children }) {
+  const router = useRouter();
   const [visibleSidebar, setVisibleSidebar] = useState(false);
 
   const itemRenderer = (item) => (
@@ -26,10 +28,16 @@ export default function layout({ children }) {
     {
       label: "Home",
       icon: "pi pi-home",
+      command: ()=>{
+        router.push('home')
+      }
     },
     {
-      label: "Features",
-      icon: "pi pi-star",
+      label: "new account",
+      icon: "pi pi-plus",
+      command: ()=>{
+        router.push('newAccount')
+      }
     },
     {
       label: "Projects",
