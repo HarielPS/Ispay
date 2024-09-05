@@ -5,30 +5,34 @@ import { Menubar } from "primereact/menubar";
 import { InputText } from "primereact/inputtext";
 import { Badge } from "primereact/badge";
 import { Avatar } from "primereact/avatar";
-import { usePathname } from "next/navigation"; 
+import { usePathname, useRouter } from "next/navigation";
 
 // options on navbar
 import { any } from "./helpers/any.navbar";
 import { company } from "./helpers/company.navbar";
 
 export default function Navbar() {
-  const pathname = usePathname(); 
+  const router = useRouter();
+  const pathname = usePathname();
   const [menuItems, setMenuItems] = useState([]);
 
   const handleChangeRoute = (route) => {
     if (pathname) {
-      window.location.href = route; 
+      //window.location.href = route;
+      router.push(route);
     }
   };
 
   const mapItems = (items, handleChangeRoute) => {
     return items.map((item) => {
       if (item.items) {
+        // Si el item tiene sub-items, recursivamente aplica el mapeo
         return {
           ...item,
           items: mapItems(item.items, handleChangeRoute),
         };
       }
+      // Si el item tiene una ruta, agrega el command
       return {
         ...item,
         command: item.route
@@ -40,19 +44,22 @@ export default function Navbar() {
 
   useEffect(() => {
     if (pathname) {
-      console.log("ruta actual:", pathname);
-
-      if (pathname === "/") {
-        setMenuItems(mapItems(any, handleChangeRoute));
-      } else if (pathname.startsWith("/company")) {
-        setMenuItems(mapItems(company, handleChangeRoute));
-      } else {
-        setMenuItems(mapItems(any, handleChangeRoute));
+      //console.log("ruta actual:", pathname);
+      switch (true) {
+        case pathname === "/":
+          setMenuItems(mapItems(any, handleChangeRoute));
+          break;
+        case pathname.startsWith("/company"):
+          setMenuItems(mapItems(company, handleChangeRoute));
+          break;
+        default:
+          setMenuItems(mapItems(any, handleChangeRoute));
+          break;
       }
     } else {
       console.log("pathname no disponible aún");
     }
-  }, [pathname]); 
+  }, [pathname]);
 
   const start = (
     <img
@@ -79,7 +86,7 @@ export default function Navbar() {
 
   return (
     <div style={{ width: "100vw", overflow: "hidden" }}>
-      <div className="card" style={{ width: '100%', position: 'absolute' }}>
+      <div className="card" style={{ width: "100%", position: "absolute" }}>
         <Menubar model={menuItems} start={start} end={end} />
       </div>
     </div>
