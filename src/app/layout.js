@@ -8,6 +8,8 @@ import "primeicons/primeicons.css";
 import "primeflex/primeflex.css";
 //navbar
 import Navbar from "@/components/Navbar";
+import { Box } from "@mui/material";
+import zIndex from "@mui/material/styles/zIndex";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
@@ -38,10 +40,15 @@ export default function RootLayout({ children }) {
               height: "100vh",
               width: "100vw",
               overflowX: "hidden",
+              // background:'blue'
             }}
           >
-            <Navbar />
-            {children}
+            {/* <Box style={{position:'relative', zIndex:3, marginTop:0}}> */}
+              <Navbar/>
+            {/* </Box> */}
+            <Box sx={{marginTop:'80px'}}>
+              {children}
+            </Box>
           </body>
         </html>
       </AuthProvider>
