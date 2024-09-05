@@ -28,6 +28,11 @@ export const company = [
     route: 'newAccount',
   },
   {
+    label: "new account",
+    icon: "pi pi-home",
+    route: '/',
+  },
+  {
     label: "Projects",
     icon: "pi pi-search",
     items: [
