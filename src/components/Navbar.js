@@ -10,6 +10,7 @@ import { usePathname, useRouter } from "next/navigation";
 // options on navbar
 import { any } from "./helpers/any.navbar";
 import { company } from "./helpers/company.navbar";
+import { signup } from "./helpers/signup.navbar";
 
 export default function Navbar() {
   const router = useRouter();
@@ -51,6 +52,9 @@ export default function Navbar() {
           break;
         case pathname.startsWith("/company"):
           setMenuItems(mapItems(company, handleChangeRoute));
+          break;
+        case pathname.startsWith("/auth"):
+          setMenuItems(mapItems(signup, handleChangeRoute));
           break;
         default:
           setMenuItems(mapItems(any, handleChangeRoute));
