@@ -3,6 +3,7 @@
 export default class User {
   static methods = {};
   constructor(generalUserInformation, userSafetyInfo) {
+    this.ID_FB = generalUserInformation.ID_FB || "";
     this.ID_user = generalUserInformation.ID_user;
     this.name = generalUserInformation.name;
     this.surname = generalUserInformation.surname;
@@ -18,6 +19,7 @@ export default class User {
   }
   toFirebase() {
     return {
+      ID_FB: this.ID_FB,
       ID_user: this.ID_user,
       name: this.name,
       surname: this.surname,
