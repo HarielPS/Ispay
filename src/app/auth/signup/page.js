@@ -18,12 +18,21 @@ import User from "@/services/Firebase/models/User";
 import { SplitButton } from "primereact/splitbutton";
 
 import { useRouter } from "next/navigation";
+import { useLocalStorage } from "primereact/hooks";
 
 export default function page() {
   const router = useRouter();
   const toast = useRef(null);
   const stepperRef = useRef(null);
   const [loading, setLoading] = useState(false);
+  const [dataCompanyLocalS, setDataCompanyLocalS] = useLocalStorage(
+    null,
+    "dataCompany"
+  );
+  const [dataAdminLocalS, setDataAdminLocalS] = useLocalStorage(
+    null,
+    "dataAdmin"
+  );
   const [companyInformation, setCompanyInformation] = useState({
     ID_company_tax: "",
     company_name: "",
@@ -107,7 +116,21 @@ export default function page() {
             life: 2000,
           },
         ]);
-        setTimeout(router.replace("/company/dashboard/home"), 2000);
+        setDataCompanyLocalS(company.toJSON());
+        setDataAdminLocalS(user.toFirebase());
+
+        const checkDataSaved = setInterval(() => {
+          const savedCompany = dataCompanyLocalS; // función que recupera los datos guardados
+          const savedAdmin = dataAdminLocalS; // función que recupera los datos guardados
+          // Si ambos datos están presentes, procede con la redirección
+          if (savedCompany && savedAdmin) {
+            clearInterval(checkDataSaved); // Detenemos la verificación
+            // Espera 2 segundos antes de redirigir
+            setTimeout(() => {
+              router.replace("/company/dashboard/home");
+            }, 2000); // Retraso de 2 segundos
+          }
+        }, 500); // Comprueba cada 500ms
       }
     } else {
       toast.current.show({
