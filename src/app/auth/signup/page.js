@@ -15,10 +15,15 @@ import GeneralUserInfo from "./components/GeneralUserInfo";
 import UserSafetyInfo from "./components/UserSafetyInfo";
 import Company from "@/services/Firebase/models/Company";
 import User from "@/services/Firebase/models/User";
+import { SplitButton } from "primereact/splitbutton";
+
+import { useRouter } from "next/navigation";
 
 export default function page() {
+  const router = useRouter();
   const toast = useRef(null);
   const stepperRef = useRef(null);
+  const [loading, setLoading] = useState(false);
   const [companyInformation, setCompanyInformation] = useState({
     ID_company_tax: "",
     company_name: "",
@@ -79,6 +84,7 @@ export default function page() {
   };
 
   const handleSubmit = async (data) => {
+    setLoading(true);
     if (validateFields(data)) {
       const company = new Company(companyInformation);
       const user = new User(generalUserInformation, userSafetyInfo);
@@ -86,12 +92,22 @@ export default function page() {
 
       const signupSuccess = await company.signup(user.toFirebase(), "");
       if (signupSuccess) {
-        toast.current.show({
-          severity: "success",
-          summary: "Success",
-          detail: "Company and user registered successfully",
-          life: 3000,
-        });
+        setLoading(false);
+        toast.current.show([
+          {
+            severity: "info",
+            summary: "Info",
+            detail: "You're being redirected",
+            life: 2000,
+          },
+          {
+            severity: "success",
+            summary: "Success",
+            detail: "Company and user registered successfully",
+            life: 2000,
+          },
+        ]);
+        setTimeout(router.replace("/company/dashboard/home"), 2000);
       }
     } else {
       toast.current.show({
@@ -175,6 +191,7 @@ export default function page() {
                 icon="pi pi-check"
                 iconPos="right"
                 onClick={() => handleSubmit(userSafetyInfo)}
+                loading={loading}
               />
             </div>
           </div>
