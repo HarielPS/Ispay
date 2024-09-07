@@ -1,7 +1,7 @@
 import crypto from "crypto";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
-class Password {
+export default class Password {
   static methods = {};
   constructor() {}
 

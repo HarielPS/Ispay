@@ -9,6 +9,7 @@ import "primereact/resources/themes/saga-blue/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
 import "primeflex/primeflex.css";
+import "./flag.css"
 //navbar
 import Navbar from "@/components/Navbar";
 import { Box } from "@mui/material";
@@ -102,9 +103,11 @@ export default function RootLayout({ children }) {
             {/* </Box> */}
             <Box 
             sx={{
-                marginTop:'80px', 
+                // marginTop:'80px', 
+                // width:'100%',
+                // background:'red',
                 // backgroundColor: theme.palette.background.paper,
-                minHeight: 'calc(100vh - 80px)',
+                // minHeight: 'calc(100vh - 80px)',
                 color: theme.palette.text.primary,
             }}>
               {children}

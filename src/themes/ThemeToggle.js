@@ -8,7 +8,7 @@ import { useTheme } from '@mui/material/styles';
 import { colors } from '@mui/material';
 
 function ThemeToggle({ toggleTheme }) {
-  const theme = useTheme();  // Usar el tema actual
+  const theme = useTheme(); 
 
   return (
     <Box sx={{ maxWidth: '32px' }}>

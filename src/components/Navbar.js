@@ -1,144 +1,160 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { Button } from "primereact/button";
-import { Menubar } from "primereact/menubar";
-import { InputText } from "primereact/inputtext";
-import { Avatar } from "primereact/avatar";
-import { usePathname, useRouter } from "next/navigation";
-import ThemeToggle from "@/themes/ThemeToggle"; 
-import { useTheme } from "@mui/material/styles"; 
+import React, { useState, useEffect, useRef } from "react";
+import { AppBar, Toolbar, IconButton, Button, Box, Avatar, Menu, MenuItem } from "@mui/material";
+import { useRouter, usePathname } from "next/navigation";
+import ArrowRightIcon from '@mui/icons-material/ArrowRight';  
+import ThemeToggle from "@/themes/ThemeToggle";
 import getColor from "@/themes/colorUtils";
+import HomeIcon from '@mui/icons-material/Home';  
+import StarIcon from '@mui/icons-material/Star';  
+import SearchIcon from '@mui/icons-material/Search';  
+import BoltIcon from '@mui/icons-material/FlashOn';  
+import ServerIcon from '@mui/icons-material/Dns';  
+import PaletteIcon from '@mui/icons-material/Palette';  
+import PencilIcon from '@mui/icons-material/Edit';  
+import { useTheme } from "@mui/material/styles"; 
+import Image from "next/image";
 
-// options on navbar
+// Importando opciones para la navbar
 import { any } from "./helpers/any.navbar";
 import { company } from "./helpers/company.navbar";
 import { signup } from "./helpers/signup.navbar";
 
-export default function Navbar({ toggleTheme }) { 
+export default function Navbar({ toggleTheme }) {
   const theme = useTheme(); 
   const router = useRouter();
   const pathname = usePathname();
   const [menuItems, setMenuItems] = useState([]);
 
-  const handleChangeRoute = (route) => {
-    if (pathname) {
+  // Esta función hace scroll a una sección específica en la página
+  const handleScrollToSection = (sectionId) => {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleChangeRoute = (route, sectionId) => {
+    if (pathname === "/") {
+      // Si estamos en la página principal, hacemos scroll a la sección
+      handleScrollToSection(sectionId);
+    } else {
+      // Si no estamos en la página principal, navegamos a una nueva ruta
       router.push(route);
     }
   };
 
-  const mapItems = (items, handleChangeRoute) => {
-    return items.map((item) => {
-      if (item.items) {
-        return {
-          ...item,
-          items: mapItems(item.items, handleChangeRoute),
-        };
-      }
-      return {
-        ...item,
-        command: item.route
-          ? () => handleChangeRoute(item.route)
-          : item.command,
-      };
-    });
+  // Función para obtener un ícono basado en el label
+  const getIcon = (label) => {
+    switch (label) {
+      case "Home":
+        return <HomeIcon sx={{ marginRight: 1 }} />;
+      case "Features":
+        return <StarIcon sx={{ marginRight: 1 }} />;
+      case "Our Team":
+        return <ServerIcon sx={{ marginRight: 1 }} />;
+      case "Testimonials":
+        return <SearchIcon sx={{ marginRight: 1 }} />;
+      case "FAQs":
+        return <PaletteIcon sx={{ marginRight: 1 }} />;
+      case "Contact Us":
+        return <PencilIcon sx={{ marginRight: 1 }} />;
+      default:
+        return null;
+    }
   };
 
+  // Mapear los ítems del menú para incluir el comportamiento correcto
+  const mapItems = (items) => {
+    return items.map((item) => ({
+      ...item,
+      command: () => handleChangeRoute(item.route, item.sectionId),  // Lógica para manejar el scroll o redireccionar
+    }));
+  };
+
+  // Cargar la estructura correcta del menú basada en la ruta
   useEffect(() => {
-    if (pathname) {
-      switch (true) {
-        case pathname === "/":
-          setMenuItems(mapItems(any, handleChangeRoute));
-          break;
-        case pathname.startsWith("/company"):
-          setMenuItems(mapItems(company, handleChangeRoute));
-          break;
-        case pathname.startsWith("/auth"):
-          setMenuItems(mapItems(signup, handleChangeRoute));
-          break;
-        default:
-          setMenuItems(mapItems(any, handleChangeRoute));
-          break;
-      }
+    if (pathname === "/") {
+      setMenuItems(mapItems(any)); // Cargamos el menú de 'any' para la página principal
+    } else if (pathname.startsWith("/company")) {
+      setMenuItems(mapItems(company)); 
+    } else if (pathname.startsWith("/auth")) {
+      setMenuItems(mapItems(signup));
+    } else {
+      setMenuItems(mapItems(any));
     }
   }, [pathname]);
 
-  const start = (
-    <img
-      alt="logo"
-      src="https://primefaces.org/cdn/primereact/images/logo.png"
-      height="40"
-      className="mr-2"
-    />
-  );
-
-  const endDefault = (
-    <div className="flex align-items-center gap-2">
-      <InputText
-        placeholder="Search"
-        type="text"
-        className="w-8rem sm:w-auto"
-        style={{
-          // backgroundColor: getColor(theme, 'background'),
-          // color: getColor(theme, 'text')
-          background:'#d3d3d3',
-          color:'black',
-        }}
-      />
-      <Avatar
-        image="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png"
-        shape="circle"
-      />
-    </div>
-  );
-
-  // primary: '#a08b23',  // Amarillo dorado -> puede usarse para botones de advertencia o alertas, ya que el color atrae la atención de inmediato.
-  //   secondary: '#d3d3d3',  // Gris claro       -> puede ser un color de fondo suave para áreas secundarias.
-  //   accent: '#04388b',  // Azul oscuro -rey      -> podría ser el color principal para botones de acción, ya que denota energía y positividad
-  //   background: '#ffffff',  // Blanco          -> Fondo
-  //   text: '#333333',  // Gris oscuro           -> Texto
-
-  const endHome = (
-    <div className="flex align-items-center gap-2">
-      <Button
-        label="Registro"
-        icon="pi pi-user-plus"
-        className="p-button-success"
-        onClick={() => router.push("/auth/register")}
-        style={{
-          // backgroundColor: getColor(theme, 'accent'),
-          background:'#04388b',
-          color: 'white'
-        }}
-      />
-      <Button
-        label="Iniciar Sesión"
-        icon="pi pi-sign-in"
-        className="p-button-info"
-        onClick={() => router.push("/auth/login")}
-        style={{
-          // backgroundColor: getColor(theme, 'secondary'),
-          background:'#d3d3d3',
-          color:'black',
-          // color: getColor(theme, 'text')
-        }}
-      />
-      <ThemeToggle toggleTheme={toggleTheme} />
-    </div>
-  );
+  const appBarPosition = pathname === "/" ? "fixed" : "relative";
+  const logoSrc = theme.palette.mode === 'light' ? '/logo_light.png' : '/logo_dark.png';
 
   return (
-    <div 
-      className="custom-navbar" 
-      style={{
-        overflow: "hidden",
-        width: "100vw",
-        backgroundColor: `${getColor(theme, 'background')} !important`,
-        color: `${getColor(theme, 'text')} !important`,
-        // borderBottom: `1px solid ${getColor(theme, 'shadow')} !important`,
-    }}>
-      <div className="card" style={{ width: "100%", position: "absolute" }}>
-        <Menubar model={menuItems} start={start} end={pathname === "/" ? endHome : endDefault} />
-      </div>
-    </div>
+    <AppBar position={appBarPosition}
+      sx={{
+        boxShadow: 0,
+        bgcolor: 'transparent',
+        backgroundImage: 'none',
+        color: getColor(theme, 'text'),
+      }}>
+      <Toolbar
+        variant="regular"
+        sx={(theme) => ({
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          backdropFilter: 'blur(24px)',
+          maxHeight: 70,  // Ajuste de altura máxima
+          padding: '0 20px',  // Ajuste de padding para mantener espacio adecuado
+        })}
+      >
+        {/* Logo */}
+        <IconButton edge="start" color="inherit" aria-label="menu" onClick={() => router.push('/')}>
+          <Image
+            alt="logo"
+            src={logoSrc}
+            height={80}
+            width={80}
+          />
+        </IconButton>
+
+        {/* Menú dinámico */}
+        <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', gap: 2 }}>
+          {menuItems.map((item, index) => (
+            <Button 
+              key={index} 
+              color="inherit" 
+              onClick={item.command}
+              startIcon={getIcon(item.label)}  // Añadimos los íconos correctos
+              sx={{ textTransform: "none", fontWeight: 500 }}  // Asegúrate de que el texto del botón no esté en mayúsculas
+            >
+              {item.label}
+            </Button>
+          ))}
+        </Box>
+
+        {/* Lado derecho */}
+        {pathname === "/" ? (
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Button variant="contained" color="primary" onClick={() => router.push("/auth/signup")}>
+              Registro
+            </Button>
+            <Button variant="outlined" color="secondary" onClick={() => router.push("/auth/login")}>
+              Iniciar Sesión
+            </Button>
+            <ThemeToggle toggleTheme={toggleTheme} />
+          </Box>
+        ) : (
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <input
+              type="text"
+              placeholder="Buscar…"
+              style={{ padding: '5px', borderRadius: '5px', borderColor: '#ccc' }}
+            />
+            <Avatar alt="user avatar" src="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png" />
+            <ThemeToggle toggleTheme={toggleTheme} />
+          </Box>
+        )}
+      </Toolbar>
+    </AppBar>
   );
 }

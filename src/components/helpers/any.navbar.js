@@ -17,61 +17,37 @@ export const any = [
   {
     label: "Home",
     icon: "pi pi-home",
+    route: '/',  // Ruta hacia la página principal
+    sectionId: 'hero-section',  // ID de la sección del Hero
   },
   {
-    label: "Dashboard",
+    label: "Features",
     icon: "pi pi-star",
-    route: '/company/dashboard/home',
+    route: '/',  // Si estamos en la home, hacemos scroll a la sección Features
+    sectionId: 'features-section',
   },
   {
-    label: "Projects",
-    icon: "pi pi-search",
-    items: [
-      {
-        label: "Core",
-        icon: "pi pi-bolt",
-        shortcut: "⌘+S",
-        template: itemRenderer,
-      },
-      {
-        label: "Blocks",
-        icon: "pi pi-server",
-        shortcut: "⌘+B",
-        template: itemRenderer,
-      },
-      {
-        label: "UI Kit",
-        icon: "pi pi-pencil",
-        shortcut: "⌘+U",
-        template: itemRenderer,
-      },
-      {
-        separator: true,
-      },
-      {
-        label: "Templates",
-        icon: "pi pi-palette",
-        items: [
-          {
-            label: "Apollo",
-            icon: "pi pi-palette",
-            badge: 2,
-            template: itemRenderer,
-          },
-          {
-            label: "Ultima",
-            icon: "pi pi-palette",
-            badge: 3,
-            template: itemRenderer,
-          },
-        ],
-      },
-    ],
+    label: "Our Team",
+    icon: "pi pi-users",
+    route: '/',  // Si estamos en la home, hacemos scroll a la sección Our Team
+    sectionId: 'team-section',
   },
   {
-    label: "Contact",
+    label: "Testimonials",
+    icon: "pi pi-comments",
+    route: '/',  // Si estamos en la home, hacemos scroll a la sección Testimonials
+    sectionId: 'testimonials-section',
+  },
+  {
+    label: "FAQs",
+    icon: "pi pi-question-circle",
+    route: '/',  // Si estamos en la home, hacemos scroll a la sección FAQs
+    sectionId: 'faq-section',
+  },
+  {
+    label: "Contact Us",
     icon: "pi pi-envelope",
-    badge: 3,
-    template: itemRenderer,
+    route: '/',  // Si estamos en la home, hacemos scroll a la sección Footer
+    sectionId: 'footer-section',
   },
 ];

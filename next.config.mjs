@@ -12,6 +12,15 @@ const nextConfig = {
         // COINMARKET: process.env.COINMARKET,
         // MEASUREMENT_ID: process.env.MEASUREMENT_ID,
     },
+    webpack: (config) => {
+        // Añade esto para evitar errores con ciertos módulos
+        config.resolve.fallback = {
+            ...config.resolve.fallback,
+            fs: false, // Evita errores relacionados con el módulo 'fs'
+        };
+
+        return config;
+    },
 };
 
 export default nextConfig;
