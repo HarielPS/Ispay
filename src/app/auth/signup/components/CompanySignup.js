@@ -253,7 +253,7 @@ export default function CompanySignup({
                   htmlFor="Company's description"
                   className="font-bold block mb-2"
                 >
-                  Company's description
+                  Role company
                 </label>
                 <MultiSelect
                   filter
