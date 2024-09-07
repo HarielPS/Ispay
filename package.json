@@ -13,6 +13,8 @@
     "@emotion/styled": "^11.13.0",
     "@mui/icons-material": "^6.0.2",
     "@mui/material": "^6.0.1",
+    "@react-three/drei": "^9.112.0",
+    "@react-three/fiber": "^8.17.6",
     "bcrypt": "^5.1.1",
     "crypto-js": "^4.2.0",
     "ethers": "^6.13.2",
@@ -23,6 +25,8 @@
     "primereact": "^10.8.2",
     "react": "^18",
     "react-dom": "^18",
-    "react-transition-group": "^4.4.5"
+    "react-transition-group": "^4.4.5",
+    "three": "^0.168.0",
+    "three-stdlib": "^2.32.2"
   }
 }
