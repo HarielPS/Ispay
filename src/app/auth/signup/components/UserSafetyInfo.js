@@ -99,12 +99,15 @@ export default function UserSafetyInfo({ userSafetyInfo, setUserSafetyInfo }) {
   // imagen de perfil
   const [profileImg, setProfileImg] = useState('');
 
-  const handleProfileImgChange = (e) => {
+  const handleUserImgChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        handleChange("company_image", reader.result); // Guardar la imagen en el estado global
+        setUserSafetyInfo((prevState) => ({
+          ...prevState,
+          image: reader.result, 
+        }));
       };
       reader.readAsDataURL(file);
     }
@@ -114,7 +117,7 @@ export default function UserSafetyInfo({ userSafetyInfo, setUserSafetyInfo }) {
   return (
 <>
   <Toast ref={toast} />
-  <Card title="Security Questions" style={{ minHeight: "60vh", textAlign: "center" }}>
+  <Card title="Security Questions" style={{ minHeight: "60vh", textAlign: "center",background:getColor(theme,'background'),color:getColor(theme,'text') }}>
     <Box sx={{ width: "100%", height: "100%" }}>
       <Grid
         container
@@ -126,26 +129,52 @@ export default function UserSafetyInfo({ userSafetyInfo, setUserSafetyInfo }) {
         // sx={{background:'green'}}
       >
     {/* Imagen de perfil */}
-    <Grid item xs={12} sx={{ width:'100%'}}>
-      <Paper sx={{ p: 2, width: '100%', background: getColor(theme, 'background') }}>
+    <Grid item xs={12} sx={{ width:'100%', background:getColor(theme,'background')}}>
+      <Paper sx={{ p: 2, width: '100%',background:getColor(theme,'background') }}>
         <Typography variant="subtitle1" gutterBottom align="center">
           Cambia tu foto de perfil desde aquí
         </Typography>
         <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
           <Avatar
-            src={userSafetyInfo.company_image}
+            src={userSafetyInfo.image}
             sx={{ width: 80, height: 80 }}
           />
         </Box>
-        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-          <Button variant="contained" component="label" color="primary" sx={{ mr: 2 }}>
-            Subir Imagen
-            <input type="file" hidden accept="image/*" onChange={handleProfileImgChange} />
-          </Button>
-          <Button variant="outlined" color="secondary" onClick={() => handleChange("company_image", "")}>
-            Resetear
-          </Button>
-        </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
+        <Button
+          variant="contained"
+          component="label"
+          color="primary"
+          style={{ backgroundColor: getColor(theme, 'primary') }}
+        >
+          Subir Imagen
+          <input
+          type="file"
+          accept="image/*"
+          onChange={handleUserImgChange}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            opacity: 0,
+            cursor: "pointer",
+          }}
+        />
+        </Button>
+
+        <Button
+          variant="outlined"
+          color="secondary"
+          sx={{ borderColor: getColor(theme, 'secondary'), padding: '10px 20px', fontSize: '14px' }}
+          onClick={() => handleChange("image", "")}
+        >
+          Resetear
+        </Button>
+      </Box>
+
+
         <Typography variant="caption" display="block" sx={{ mt: 2 }} align="center">
           Permitidos JPG, GIF o PNG. Tamaño máximo de 800K
         </Typography>

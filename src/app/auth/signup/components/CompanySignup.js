@@ -6,7 +6,7 @@ import { Dropdown } from "primereact/dropdown";
 import { MultiSelect } from "primereact/multiselect";
 import { Toast } from "primereact/toast";
 import { InputTextarea } from "primereact/inputtextarea";
-import { Box, Grid, Paper, Typography, Avatar, Button } from '@mui/material';
+import { Box, Grid, Paper, Typography, Avatar, Button, backdropClasses } from '@mui/material';
 
 import { countries } from "../helpers/list.countries";
 import { numEmployees } from "../helpers/list.numEmployees";
@@ -114,7 +114,10 @@ export default function CompanySignup({
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        handleChange("company_image", reader.result); // Guardar la imagen en el estado global
+        setCompanyInformation((prevState) => ({
+          ...prevState,
+          company_image: reader.result, // Guarda la imagen en `company_image`
+        }));
       };
       reader.readAsDataURL(file);
     }
@@ -240,31 +243,34 @@ export default function CompanySignup({
 
     {/* Headquarters */}
     <Grid item xs={12} sm={6}>
-    <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 'bold' }}>
-        Company's Headquarters
-      </Typography>
-      <Dropdown
-        filter
-        value={companyInformation.company_headquarters}
-        onChange={(e) =>
-          handleChange("company_headquarters", e.value)
-        }
-        options={countries}
-        optionLabel="name"
-        placeholder="Select a Country"
-        valueTemplate={selectedCountryTemplate}
-        itemTemplate={countryOptionTemplate}
-        className="w-full"
-        panelFooterTemplate={panelFooterTemplate}
-        dropdownIcon={(opts) => {
-          return opts.iconProps["data-pr-overlay-visible"] ? (
-            <ChevronRightIcon {...opts.iconProps} />
-          ) : (
-            <ChevronDownIcon {...opts.iconProps} />
-          );
-        }}
-      />
-    </Grid>
+  <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 'bold' }}>
+    Company's Headquarters
+  </Typography>
+  <Dropdown
+    filter
+    value={companyInformation.company_headquarters}
+    onChange={(e) => handleChange("company_headquarters", e.value)}
+    options={countries}
+    optionLabel="name"
+    placeholder="Select a Country"
+    valueTemplate={selectedCountryTemplate}
+    itemTemplate={countryOptionTemplate}
+    className="w-full"
+    style={{
+      backgroundColor: getColor(theme, "background"),
+      color: getColor(theme, "text"),
+    }}
+    panelFooterTemplate={panelFooterTemplate}
+    dropdownIcon={(opts) => {
+      return opts.iconProps["data-pr-overlay-visible"] ? (
+        <ChevronRightIcon {...opts.iconProps} />
+      ) : (
+        <ChevronDownIcon {...opts.iconProps} />
+      );
+    }}
+  />
+</Grid>
+
 
     {/* Number of Employees */}
     <Grid item xs={12} sm={6}>

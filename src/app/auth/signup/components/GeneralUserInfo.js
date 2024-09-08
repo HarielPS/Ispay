@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import { Card } from "primereact/card";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import { InputMask } from "primereact/inputmask";
 import { InputText } from "primereact/inputtext";
@@ -14,11 +14,14 @@ import { MultiSelect } from "primereact/multiselect";
 import { Toast } from "primereact/toast";
 import { Checkbox } from "primereact/checkbox";
 import { Tooltip } from "primereact/tooltip";
+import { useTheme } from "@mui/material";
+import getColor from "@/themes/colorUtils";
 
 export default function GeneralUserInfo({
   generalUserInformation,
   setGeneralUserInformation,
 }) {
+  const theme= useTheme();
   const toast = useRef(null);
   const groupedItemTemplate = (option) => {
     return (
@@ -48,7 +51,7 @@ export default function GeneralUserInfo({
       <Toast ref={toast} />
       <Card
         title="General user information"
-        style={{ height: "auto", minHeight: "60vh" }}
+        style={{ height: "auto", minHeight: "60vh", background:getColor(theme,'background'),color:getColor(theme,'text')}}
       >
         <Box sx={{ width: "100%", height: "100%" }}>
           <Grid
@@ -62,6 +65,7 @@ export default function GeneralUserInfo({
                   ID employee
                 </label>
                 <InputText
+                  style={{background:getColor(theme,'background'),color:getColor(theme,'text')}}
                   keyfilter="alphanum"
                   placeholder="ID employee"
                   className="w-full"
@@ -76,6 +80,7 @@ export default function GeneralUserInfo({
                   Name
                 </label>
                 <InputText
+                  style={{background:getColor(theme,'background'),color:getColor(theme,'text')}}
                   keyfilter="alpha"
                   placeholder="Name"
                   className="w-full"
@@ -90,6 +95,7 @@ export default function GeneralUserInfo({
                   Surname
                 </label>
                 <InputText
+                  style={{background:getColor(theme,'background'),color:getColor(theme,'text')}}
                   keyfilter="alpha"
                   placeholder="Surname"
                   className="w-full"
@@ -104,6 +110,7 @@ export default function GeneralUserInfo({
                   SSN
                 </label>
                 <InputText
+                  style={{background:getColor(theme,'background'),color:getColor(theme,'text')}}
                   placeholder="SSN"
                   className="w-full"
                   value={generalUserInformation.ssn}
@@ -117,6 +124,7 @@ export default function GeneralUserInfo({
                   Work email
                 </label>
                 <InputText
+                  style={{background:getColor(theme,'background'),color:getColor(theme,'text')}}
                   keyfilter="email"
                   placeholder="Email"
                   className="w-full"
@@ -131,6 +139,7 @@ export default function GeneralUserInfo({
                   Role
                 </label>
                 <InputText
+                  style={{background:getColor(theme,'background'),color:getColor(theme,'text')}}
                   keyfilter="alphanum"
                   placeholder="Role"
                   className="w-full"
