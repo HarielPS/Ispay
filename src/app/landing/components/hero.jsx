@@ -87,7 +87,7 @@ export default function Hero() {
       >
         <Image
           alt="Building"
-          src="/banco/build.png"  // Ruta de tu imagen
+          src="/landing/banco/build.png"  // Ruta de tu imagen
           width={450}
           height={550}
           priority
