@@ -43,7 +43,7 @@ export default function home() {
           color={"bg-green-500"}
         />
       </Box>
-      <Box sx={{ width: "100vw" }}>
+      <Box sx={{ width: "99vw" }}>
         <Grid
           container
           rowSpacing={1}
