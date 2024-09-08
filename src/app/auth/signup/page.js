@@ -1,38 +1,24 @@
 "use client";
 import React, { useState, useRef } from "react";
-import { Button } from "primereact/button";
-import { Card } from "primereact/card";
-import { ScrollPanel } from "primereact/scrollpanel";
-import { Stepper } from "primereact/stepper";
-import { StepperPanel } from "primereact/stepperpanel";
+import { Box, Button, Stepper, Step, StepLabel, Typography } from "@mui/material";
 import { Toast } from "primereact/toast";
-
-import "primeflex/primeflex.css";
-import "primereact/resources/primereact.css";
-import "primereact/resources/themes/lara-light-indigo/theme.css";
 import CompanySignup from "./components/CompanySignup";
 import GeneralUserInfo from "./components/GeneralUserInfo";
 import UserSafetyInfo from "./components/UserSafetyInfo";
 import Company from "@/services/Firebase/models/Company";
 import User from "@/services/Firebase/models/User";
-import { SplitButton } from "primereact/splitbutton";
-
 import { useRouter } from "next/navigation";
-import { useLocalStorage } from "primereact/hooks";
+import getColor from "@/themes/colorUtils";
+import { useTheme } from "@mui/material";
 
-export default function page() {
+export default function Page() {
+  const theme = useTheme();
   const router = useRouter();
   const toast = useRef(null);
-  const stepperRef = useRef(null);
   const [loading, setLoading] = useState(false);
-  const [dataCompanyLocalS, setDataCompanyLocalS] = useLocalStorage(
-    null,
-    "dataCompany"
-  );
-  const [dataAdminLocalS, setDataAdminLocalS] = useLocalStorage(
-    null,
-    "dataAdmin"
-  );
+  const [activeStep, setActiveStep] = useState(0); // MUI Stepper control
+
+  // Information for company and user, including profileImg here
   const [companyInformation, setCompanyInformation] = useState({
     ID_company_tax: "",
     company_name: "",
@@ -45,7 +31,9 @@ export default function page() {
     number_employees: "",
     company_role: [],
     company_description: "",
+    company_image: "",
   });
+
   const [generalUserInformation, setGeneralUserInformation] = useState({
     ID_user: "",
     name: "",
@@ -55,6 +43,7 @@ export default function page() {
     role: "ADMIN",
     ADMIN: true,
   });
+
   const [userSafetyInfo, setUserSafetyInfo] = useState({
     image: "",
     password: "",
@@ -63,25 +52,24 @@ export default function page() {
     work_location: "",
   });
 
+  // Form validation function
   const validateFields = (fields) => {
-    for (const key in fields) {
-      if (typeof fields[key] === "object" && fields[key] !== null) {
-        // Si es un objeto, validamos sus propiedades
-        if (!validateFields(fields[key])) return false;
-      } else if (Array.isArray(fields[key])) {
-        // Si es un array, validamos que no esté vacío
-        if (fields[key].length === 0) return false;
-      } else {
-        // Validamos que los campos no estén vacíos
-        if (!fields[key]) return false;
-      }
+  for (const key in fields) {
+    if (typeof fields[key] === "object" && fields[key] !== null) {
+      if (!validateFields(fields[key])) return false;
+    } else if (Array.isArray(fields[key])) {
+      if (fields[key].length === 0) return false;
+    } else {
+      if (!fields[key]) return false;
     }
-    return true;
+  }
+  return true;
   };
 
-  const handleNextView = (data) => {
-    if (validateFields(data) | 1) {
-      stepperRef.current.nextCallback();
+  const handleNext = () => {
+    // validateFields(getCurrentFormData())
+    if (true) {
+      setActiveStep((prevStep) => prevStep + 1);
     } else {
       toast.current.show({
         severity: "error",
@@ -92,45 +80,28 @@ export default function page() {
     }
   };
 
-  const handleSubmit = async (data) => {
+  const handleBack = () => {
+    setActiveStep((prevStep) => prevStep - 1);
+  };
+
+  const handleSubmit = async () => {
     setLoading(true);
-    if (validateFields(data)) {
+    if (validateFields(getCurrentFormData())) {
       const company = new Company(companyInformation);
       const user = new User(generalUserInformation, userSafetyInfo);
-      console.log(user.toFirebase());
 
       const signupSuccess = await company.signup(user.toFirebase(), "");
       if (signupSuccess) {
         setLoading(false);
-        toast.current.show([
-          {
-            severity: "info",
-            summary: "Info",
-            detail: "You're being redirected",
-            life: 2000,
-          },
-          {
-            severity: "success",
-            summary: "Success",
-            detail: "Company and user registered successfully",
-            life: 2000,
-          },
-        ]);
-        setDataCompanyLocalS(company.toJSON());
-        setDataAdminLocalS(user.toFirebase());
-
-        const checkDataSaved = setInterval(() => {
-          const savedCompany = dataCompanyLocalS; // función que recupera los datos guardados
-          const savedAdmin = dataAdminLocalS; // función que recupera los datos guardados
-          // Si ambos datos están presentes, procede con la redirección
-          if (savedCompany && savedAdmin) {
-            clearInterval(checkDataSaved); // Detenemos la verificación
-            // Espera 2 segundos antes de redirigir
-            setTimeout(() => {
-              router.replace("/company/dashboard/home");
-            }, 2000); // Retraso de 2 segundos
-          }
-        }, 500); // Comprueba cada 500ms
+        toast.current.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Company and user registered successfully",
+          life: 2000,
+        });
+        setTimeout(() => {
+          router.replace("/company/dashboard/home");
+        }, 2000);
       }
     } else {
       toast.current.show({
@@ -142,84 +113,82 @@ export default function page() {
     }
   };
 
+  const getCurrentFormData = () => {
+    switch (activeStep) {
+      case 0:
+        return companyInformation;
+      case 1:
+        return generalUserInformation;
+      case 2:
+        return userSafetyInfo;
+      default:
+        return {};
+    }
+  };
+
+  const steps = ["Company Information", "General User Information", "Security Questions"];
+
   return (
-    <div className="card">
+    <Box sx={{ backgroundColor: getColor(theme, "background"), color: getColor(theme, "text"), minHeight: "100vh", padding: 3 }}>
       <Toast ref={toast} />
-      <Stepper ref={stepperRef} style={{ flexBasis: "50rem" }} linear>
-        <StepperPanel header="Company information">
-          <div className="flex flex-column h-12rem">
-            <div className="border-2 border-dashed surface-border border-round surface-ground flex-auto flex justify-content-center align-items-center font-medium">
-              <ScrollPanel style={{ width: "100%", height: "60vh" }}>
-                <CompanySignup
-                  companyInformation={companyInformation}
-                  setCompanyInformation={setCompanyInformation}
-                />
-              </ScrollPanel>
-            </div>
-            <div className="flex pt-4 justify-content-end">
-              <Button
-                label="Next"
-                icon="pi pi-arrow-right"
-                iconPos="right"
-                onClick={() => handleNextView(companyInformation)}
-              />
-            </div>
-          </div>
-        </StepperPanel>
-        <StepperPanel header="General user information">
-          <div className="flex flex-column h-12rem">
-            <div className="border-2 border-dashed surface-border border-round surface-ground flex-auto flex justify-content-center align-items-center font-medium">
-              <ScrollPanel style={{ width: "100%", height: "60vh" }}>
-                <GeneralUserInfo
-                  generalUserInformation={generalUserInformation}
-                  setGeneralUserInformation={setGeneralUserInformation}
-                />
-              </ScrollPanel>
-            </div>
-            <div className="flex pt-4 justify-content-between">
-              <Button
-                label="Back"
-                severity="secondary"
-                icon="pi pi-arrow-left"
-                onClick={() => stepperRef.current.prevCallback()}
-              />
-              <Button
-                label="Next"
-                icon="pi pi-arrow-right"
-                iconPos="right"
-                onClick={() => handleNextView(generalUserInformation)}
-              />
-            </div>
-          </div>
-        </StepperPanel>
-        <StepperPanel header="Security Questions">
-          <div className="flex flex-column h-12rem">
-            <div className="border-2 border-dashed surface-border border-round surface-ground flex-auto flex justify-content-center align-items-center font-medium">
-              <ScrollPanel style={{ width: "100%", height: "60vh" }}>
-                <UserSafetyInfo
-                  userSafetyInfo={userSafetyInfo}
-                  setUserSafetyInfo={setUserSafetyInfo}
-                />
-              </ScrollPanel>
-            </div>
-            <div className="flex pt-4 justify-content-between">
-              <Button
-                label="Back"
-                severity="secondary"
-                icon="pi pi-arrow-left"
-                onClick={() => stepperRef.current.prevCallback()}
-              />
-              <Button
-                label="Sign up"
-                icon="pi pi-check"
-                iconPos="right"
-                onClick={() => handleSubmit(userSafetyInfo)}
-                loading={loading}
-              />
-            </div>
-          </div>
-        </StepperPanel>
+
+      <Stepper activeStep={activeStep} alternativeLabel sx={{ backgroundColor: getColor(theme, "background") }}>
+        {steps.map((label, index) => (
+          <Step key={index}>
+            <StepLabel>{label}</StepLabel>
+          </Step>
+        ))}
       </Stepper>
-    </div>
+
+      <Box sx={{ mt: 2 }}>
+        {activeStep === 0 && (
+          <CompanySignup 
+            companyInformation={companyInformation} 
+            setCompanyInformation={setCompanyInformation} 
+          />
+        )}
+        {activeStep === 1 && (
+          <GeneralUserInfo 
+            generalUserInformation={generalUserInformation} 
+            setGeneralUserInformation={setGeneralUserInformation} 
+          />
+        )}
+        {activeStep === 2 && (
+          <UserSafetyInfo 
+            userSafetyInfo={userSafetyInfo} 
+            setUserSafetyInfo={setUserSafetyInfo} 
+          />
+        )}
+      </Box>
+
+      <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+        <Button 
+          onClick={handleBack} 
+          disabled={activeStep === 0} 
+          variant="contained"
+          sx={{ backgroundColor: theme.palette.primary.main, color: "white" }}
+        >
+          Back
+        </Button>
+        {activeStep === steps.length - 1 ? (
+          <Button 
+            onClick={handleSubmit} 
+            variant="contained"
+            sx={{ backgroundColor: theme.palette.success.main, color: "white" }}
+            disabled={loading}
+          >
+            {loading ? "Submitting..." : "Finish"}
+          </Button>
+        ) : (
+          <Button 
+            onClick={handleNext} 
+            variant="contained"
+            sx={{ backgroundColor: theme.palette.primary.main, color: "white" }}
+          >
+            Next
+          </Button>
+        )}
+      </Box>
+    </Box>
   );
 }

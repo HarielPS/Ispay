@@ -1,26 +1,20 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import { Card } from "primereact/card";
-import { Box } from "@mui/material";
-import Grid from "@mui/material/Grid2";
-import { InputMask } from "primereact/inputmask";
 import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
-import { Button } from "primereact/button";
-import { InputNumber } from "primereact/inputnumber";
-import { Divider } from "primereact/divider";
-import { ScrollPanel } from "primereact/scrollpanel";
 import { MultiSelect } from "primereact/multiselect";
 import { Toast } from "primereact/toast";
-import { Checkbox } from "primereact/checkbox";
-import { Tooltip } from "primereact/tooltip";
 import { InputTextarea } from "primereact/inputtextarea";
+import { Box, Grid, Paper, Typography, Avatar, Button } from '@mui/material';
 
-import { ChevronDownIcon } from "primereact/icons/chevrondown";
-import { ChevronRightIcon } from "primereact/icons/chevronright";
 import { countries } from "../helpers/list.countries";
 import { numEmployees } from "../helpers/list.numEmployees";
 import { groupedMarkets } from "../helpers/list.companyRoles";
+import { useTheme } from "@mui/material";
+import getColor from "@/themes/colorUtils";
+import { ChevronDownIcon } from "primereact/icons/chevrondown";
+import { ChevronRightIcon } from "primereact/icons/chevronright";
 
 export default function CompanySignup({
   companyInformation,
@@ -43,10 +37,9 @@ export default function CompanySignup({
     expense_category: [],
   });
 
-  useEffect(() => {
-    console.log(companyInformation);
-  }, [companyInformation]);
+  const theme = useTheme();
 
+  // Función para manejar cambios en los campos del formulario
   const handleChange = (field, value) => {
     setCompanyInformation((prevState) => ({
       ...prevState,
@@ -54,6 +47,7 @@ export default function CompanySignup({
     }));
   };
 
+  // Template para el país seleccionado
   const selectedCountryTemplate = (option, props) => {
     if (option && option.name) {
       return (
@@ -72,20 +66,23 @@ export default function CompanySignup({
     return <span>{props.placeholder}</span>;
   };
 
+  // Template para los países en el Dropdown
   const countryOptionTemplate = (option) => {
     return (
       <div className="flex align-items-center">
         <img
           alt={option.name}
-          src="https://primefaces.org/cdn/primereact/images/flag/flag_placeholder.png"
-          className={`mr-2 flag flag-${option.code.toLowerCase()}`}
-          style={{ width: "18px" }}
+          src={`https://flagcdn.com/w20/${option.code.toLowerCase()}.png`}
+          className="mr-2"
+          style={{ width: "20px", height: "15px" }} // Ajusta el tamaño si es necesario
         />
         <div>{option.name}</div>
       </div>
     );
   };
+  
 
+  // Template para el Dropdown de roles de la empresa
   const groupedItemTemplate = (option) => {
     return (
       <div className="flex align-items-center">
@@ -94,12 +91,13 @@ export default function CompanySignup({
     );
   };
 
-  const panelFooterTemplate = () => {
+  // Template para el footer del panel del Dropdown
+  const panelFooterTemplate = (companyInformation) => {
     return (
       <div className="py-2 px-3">
-        {companyInformation.company_headquarter ? (
+        {companyInformation?.company_headquarters?.name ? (
           <span>
-            <b>{companyInformation.company_headquarter}</b> selected.
+            <b>{companyInformation.company_headquarters.name}</b> selected.
           </span>
         ) : (
           "No country selected."
@@ -107,191 +105,231 @@ export default function CompanySignup({
       </div>
     );
   };
+
+// imagen de perfil
+  const [profileImg, setProfileImg] = useState('');
+
+  const handleProfileImgChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        handleChange("company_image", reader.result); // Guardar la imagen en el estado global
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
-    <>
+    <Box
+      sx={{
+        backgroundColor: getColor(theme, 'background'),
+        borderRadius: 2,
+        boxShadow: `0px 4px 10px ${getColor(theme, 'shadow')}`,
+      }}
+    >
       <Toast ref={toast} />
-      <Card title="Company information" style={{ minHeight: "60vh" }}>
-        <Box sx={{ width: "100%", minHeight: "100%" }}>
-          <Grid
-            container
-            rowSpacing={2}
-            columnSpacing={{ xs: 1, sm: 2, md: 3 }}
-            sx={{ width: "100%", height: "100%" }}
-          >
-            <Grid size={12}>
-              <div className="flex-auto">
-                <label htmlFor="Company image" className="font-bold block mb-2">
-                  Company image
-                </label>
-                <InputText
-                  placeholder="Company image"
-                  className="w-full"
-                  value={createDataAccount.ID_employee}
-                  onChange={(e) => handleChange("ID_employee", e.target.value)}
-                />
-              </div>
-            </Grid>
-            <Grid size={4}>
-              <div className="flex-auto">
-                <label
-                  htmlFor="company tax ID"
-                  className="font-bold block mb-2"
-                >
-                  company tax ID
-                </label>
-                <InputText
-                  placeholder="company tax ID"
-                  className="w-full"
-                  value={companyInformation.ID_company_tax}
-                  onChange={(e) =>
-                    handleChange("ID_company_tax", e.target.value)
-                  }
-                />
-              </div>
-            </Grid>
-            <Grid size={4}>
-              <div className="flex-auto">
-                <label
-                  htmlFor="Company's name"
-                  className="font-bold block mb-2"
-                >
-                  Company's name
-                </label>
-                <InputText
-                  placeholder="Company's name"
-                  className="w-full"
-                  value={companyInformation.company_name}
-                  onChange={(e) => handleChange("company_name", e.target.value)}
-                />
-              </div>
-            </Grid>
-            <Grid size={4}>
-              <div className="flex-auto">
-                <label
-                  htmlFor="Legal name of the company"
-                  className="font-bold block mb-2"
-                >
-                  Legal name of the company
-                </label>
-                <InputText
-                  placeholder="Legal name of the company"
-                  className="w-full"
-                  value={companyInformation.legal_company_name}
-                  onChange={(e) =>
-                    handleChange("legal_company_name", e.target.value)
-                  }
-                />
-              </div>
-            </Grid>
-            <Grid size={4}>
-              <div className="flex-auto">
-                <label
-                  htmlFor="Company's headquarters"
-                  className="font-bold block mb-2"
-                >
-                  Company's headquarters
-                </label>
-                <Dropdown
-                  filter
-                  value={companyInformation.company_headquarters}
-                  onChange={(e) =>
-                    handleChange("company_headquarters", e.value)
-                  }
-                  options={countries}
-                  optionLabel="name"
-                  placeholder="Select a Country"
-                  valueTemplate={selectedCountryTemplate}
-                  itemTemplate={countryOptionTemplate}
-                  className="w-full"
-                  panelFooterTemplate={panelFooterTemplate}
-                  dropdownIcon={(opts) => {
-                    return opts.iconProps["data-pr-overlay-visible"] ? (
-                      <ChevronRightIcon {...opts.iconProps} />
-                    ) : (
-                      <ChevronDownIcon {...opts.iconProps} />
-                    );
-                  }}
-                />
-              </div>
-            </Grid>
-            <Grid size={4}>
-              <div className="flex-auto">
-                <label htmlFor="Website" className="font-bold block mb-2">
-                  Website
-                </label>
-                <InputText
-                  placeholder="Website"
-                  className="w-full"
-                  value={companyInformation.website}
-                  onChange={(e) => handleChange("website", e.target.value)}
-                />
-              </div>
-            </Grid>
-            <Grid size={4}>
-              <div className="flex-auto">
-                <label
-                  htmlFor="number of employees"
-                  className="font-bold block mb-2"
-                >
-                  number of employees
-                </label>
-                <Dropdown
-                  value={companyInformation.number_employees}
-                  onChange={(e) =>
-                    handleChange("number_employees", e.target.value)
-                  }
-                  options={numEmployees}
-                  optionLabel="name"
-                  placeholder="Select a range"
-                  className="w-full"
-                />
-              </div>
-            </Grid>
-            <Grid size={12}>
-              <div className="flex-auto">
-                <label
-                  htmlFor="Company's description"
-                  className="font-bold block mb-2"
-                >
-                  Role company
-                </label>
-                <MultiSelect
-                  filter
-                  value={companyInformation.company_role}
-                  options={groupedMarkets}
-                  onChange={(e) => handleChange("company_role", e.value)}
-                  optionLabel="label"
-                  optionGroupLabel="label"
-                  optionGroupChildren="items"
-                  optionGroupTemplate={groupedItemTemplate}
-                  placeholder="Select Role company"
-                  display="chip"
-                  className="w-full"
-                />
-              </div>
-            </Grid>
-            <Grid size={12}>
-              <div className="flex-auto">
-                <label
-                  htmlFor="Company's description"
-                  className="font-bold block mb-2"
-                >
-                  Company's description
-                </label>
-                <InputTextarea
-                  value={companyInformation.company_description}
-                  onChange={(e) =>
-                    handleChange("company_description", e.target.value)
-                  }
-                  rows={5}
-                  cols={30}
-                  className="w-full"
-                />
-              </div>
-            </Grid>
-          </Grid>
+      <Card
+        title="Company information"
+        style={{
+          minHeight: "60vh",
+          backgroundColor: getColor(theme, "background"),
+          color: getColor(theme, "text"),
+        }}
+      >
+<Box sx={{ width: "100%", minHeight: "100%" }}>
+  <Grid container spacing={2} sx={{ width: "100%" }}>
+    {/* Imagen de perfil */}
+    <Grid item xs={12}>
+      <Paper sx={{ p: 2, width: '100%', background: getColor(theme, 'background') }}>
+        <Typography variant="subtitle1" gutterBottom align="center">
+          Cambia tu foto de perfil desde aquí
+        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
+          <Avatar
+            src={companyInformation.company_image}
+            sx={{ width: 80, height: 80 }}
+          />
         </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+          <Button variant="contained" component="label" color="primary" sx={{ mr: 2 }}>
+            Subir Imagen
+            <input type="file" hidden accept="image/*" onChange={handleProfileImgChange} />
+          </Button>
+          <Button variant="outlined" color="secondary" onClick={() => handleChange("company_image", "")}>
+            Resetear
+          </Button>
+        </Box>
+        <Typography variant="caption" display="block" sx={{ mt: 2 }} align="center">
+          Permitidos JPG, GIF o PNG. Tamaño máximo de 800K
+        </Typography>
+      </Paper>
+    </Grid>
+
+    {/* Company Tax ID */}
+    <Grid item xs={12} sm={6}>
+      <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 'bold' }}>
+        Company Tax ID
+      </Typography>
+      <InputText
+        placeholder="Company Tax ID"
+        className="w-full"
+        style={{
+          backgroundColor: getColor(theme, "background"),
+          color: getColor(theme, "text"),
+          width: "100%",
+        }}
+        value={companyInformation.ID_company_tax}
+        onChange={(e) => handleChange("ID_company_tax", e.target.value)}
+      />
+    </Grid>
+
+    {/* Company Name */}
+    <Grid item xs={12} sm={6}>
+      <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 'bold' }}>
+        Company's Name
+      </Typography>
+      <InputText
+        placeholder="Company's Name"
+        className="w-full"
+        style={{
+          backgroundColor: getColor(theme, "background"),
+          color: getColor(theme, "text"),
+          width: "100%",
+        }}
+        value={companyInformation.company_name}
+        onChange={(e) => handleChange("company_name", e.target.value)}
+      />
+    </Grid>
+
+    {/* Legal Company Name */}
+    <Grid item xs={12} sm={6}>
+    <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 'bold' }}>
+        Legal Company Name
+      </Typography>
+      <InputText
+        placeholder="Legal Company Name"
+        className="w-full"
+        style={{
+          backgroundColor: getColor(theme, "background"),
+          color: getColor(theme, "text"),
+          width: "100%",
+        }}
+        value={companyInformation.legal_company_name}
+        onChange={(e) => handleChange("legal_company_name", e.target.value)}
+      />
+    </Grid>
+
+    {/* Website */}
+    <Grid item xs={12} sm={6}>
+    <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 'bold' }}>
+        Website
+      </Typography>
+      <InputText
+        placeholder="Website"
+        className="w-full"
+        style={{
+          backgroundColor: getColor(theme, "background"),
+          color: getColor(theme, "text"),
+          width: "100%",
+        }}
+        value={companyInformation.website}
+        onChange={(e) => handleChange("website", e.target.value)}
+      />
+    </Grid>
+
+    {/* Headquarters */}
+    <Grid item xs={12} sm={6}>
+    <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 'bold' }}>
+        Company's Headquarters
+      </Typography>
+      <Dropdown
+        filter
+        value={companyInformation.company_headquarters}
+        onChange={(e) =>
+          handleChange("company_headquarters", e.value)
+        }
+        options={countries}
+        optionLabel="name"
+        placeholder="Select a Country"
+        valueTemplate={selectedCountryTemplate}
+        itemTemplate={countryOptionTemplate}
+        className="w-full"
+        panelFooterTemplate={panelFooterTemplate}
+        dropdownIcon={(opts) => {
+          return opts.iconProps["data-pr-overlay-visible"] ? (
+            <ChevronRightIcon {...opts.iconProps} />
+          ) : (
+            <ChevronDownIcon {...opts.iconProps} />
+          );
+        }}
+      />
+    </Grid>
+
+    {/* Number of Employees */}
+    <Grid item xs={12} sm={6}>
+    <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 'bold' }}>
+        Select Number of Employees
+      </Typography>
+      <Dropdown
+        value={companyInformation.number_employees}
+        onChange={(e) => handleChange("number_employees", e.target.value)}
+        options={numEmployees}
+        optionLabel="name"
+        placeholder="Select Number of Employees"
+        className="w-full"
+        style={{
+          backgroundColor: getColor(theme, "background"),
+          color: getColor(theme, "text"),
+          width: "100%",
+        }}
+      />
+    </Grid>
+
+    {/* Company Role */}
+    <Grid item xs={12}>
+      <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 'bold' }}>
+        Select Company Role
+      </Typography>
+      <MultiSelect
+        filter
+        value={companyInformation.company_role}
+        options={groupedMarkets}
+        onChange={(e) => handleChange("company_role", e.value)}
+        optionLabel="label"
+        placeholder="Select Company Role"
+        display="chip"
+        className="w-full"
+        style={{
+          backgroundColor: getColor(theme, "background"),
+          color: getColor(theme, "text"),
+          width: "100%",
+        }}
+      />
+    </Grid>
+
+    {/* Company Description */}
+    <Grid item xs={12}>
+      <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 'bold' }}>
+        Company's Description
+      </Typography>
+      <InputTextarea
+        value={companyInformation.company_description}
+        onChange={(e) => handleChange("company_description", e.target.value)}
+        rows={5}
+        cols={30}
+        className="w-full"
+        style={{
+          backgroundColor: getColor(theme, "background"),
+          color: getColor(theme, "text"),
+          width: "100%",
+        }}
+      />
+    </Grid>
+  </Grid>
+</Box>
+
       </Card>
-    </>
+    </Box>
   );
 }

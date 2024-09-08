@@ -43,6 +43,7 @@ export default function Footer() {
   return (
     <Container
       sx={{
+        background: getColor(theme,'background'),
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
