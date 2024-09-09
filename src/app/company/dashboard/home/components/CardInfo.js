@@ -1,7 +1,9 @@
 "use client";
 import { useRouter } from "next/navigation";
 import React from "react";
-import { Tooltip, Typography } from "@mui/material";
+import { Box, Tooltip, Typography } from "@mui/material";
+import getColor from '@/themes/colorUtils';
+import { useTheme } from '@mui/material';
 
 export default function CardInfoInicio({
   title,
@@ -13,12 +15,15 @@ export default function CardInfoInicio({
   color,
 }) {
   const router = useRouter();
+  const theme = useTheme();
 
   return (
     <Tooltip title={text} arrow>
       {/* <div className="col-12 md:col-6 lg:col-2" onClick={()=> router.push(link)}> */}
       <div className="col-4 sm:col-4 md:col-4 lg:col-4">
-        <div className="surface-0 shadow-2 p-3 border-1 border-50 border-round min-h-full">
+        <div className="surface-0 shadow-2 p-3 border-1 border-50 border-round min-h-full" 
+        // sx={{background:getColor(theme,'background'),boxShadow: `1px 1px 9px 10px ${getColor(theme, 'shadow')}`}}
+        >
           <div className="flex justify-content-between mb-3">
             <div>
               <span className="block text-500 font-medium mb-3">{title}</span>

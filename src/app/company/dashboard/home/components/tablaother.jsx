@@ -17,19 +17,12 @@ import {
   IconButton,
 } from "@mui/material";
 import { Dialog } from "primereact/dialog";
-import { Refresh } from "@mui/icons-material"; 
+import { Refresh } from "@mui/icons-material"; // Icon for the refresh button
 import getColor from "@/themes/colorUtils";
 import { useTheme } from "@mui/material";
 
 export default function AccountsTable() {
-  const [search, setSearch] = useState({
-    name: "",
-    email: "",
-    lastSignin: "",
-    area: "",
-    lastFaucet: "",
-    account: "",
-  });
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [modalVisible, setModalVisible] = useState(false);
@@ -38,7 +31,7 @@ export default function AccountsTable() {
 
   const theme = useTheme();
 
-// datos
+  // Sample data
   const [products, setProducts] = useState([
     {
       id: "1000",
@@ -48,116 +41,24 @@ export default function AccountsTable() {
       email: "juanito@ispay.com",
       last_signin: new Date(2024, 9, 7),
       last_faucet: new Date(2024, 9, 7),
-      last_movement: new Date(2024, 9, 7),
       account: "0x49faC9237f1e4364F58486677BAEf38229A3EF5E",
       balance: "1",
       area: "avion",
-      image: "bamboo-watch.jpg",
-      description: "Product Description",
-      price: 65,
-      min_amount_account: 10,
-      category: "Accessories",
-      quantity: 24,
-      inventoryStatus: "INSTOCK",
-      rating: 5,
-      image:
-        "https://primefaces.org/cdn/primereact/images/avatar/asiyajavayant.png",
-      work_location: { name: "Argentina", code: "AR" },
+      image: "https://primefaces.org/cdn/primereact/images/avatar/asiyajavayant.png",
     },
-    {
-      id: "1000",
-      code: "D453SY0Q1",
-      name: "Daniel ",
-      surname: "Barrera",
-      email: "juanito@ispay.com",
-      last_signin: new Date(2024, 9, 7),
-      last_faucet: new Date(2024, 9, 7),
-      last_movement: new Date(2024, 9, 7),
-      account: "0x49faC9237f1e4364F58486677BAEf38229A3EF5E",
-      balance: "1",
-      area: "avion",
-      image: "bamboo-watch.jpg",
-      description: "Product Description",
-      price: 65,
-      min_amount_account: 10,
-      category: "Accessories",
-      quantity: 24,
-      inventoryStatus: "INSTOCK",
-      rating: 5,
-      image:
-        "https://primefaces.org/cdn/primereact/images/avatar/asiyajavayant.png",
-      work_location: { name: "United State", code: "US" },
-    },
-    {
-      id: "1000",
-      code: "D453SY0Q1",
-      name: "juanito ",
-      surname: "Barrera",
-      email: "juanito@ispay.com",
-      last_signin: new Date(2024, 9, 7),
-      last_faucet: new Date(2024, 9, 7),
-      last_movement: new Date(2024, 9, 7),
-      account: "0x49faC9237f1e4364F58486677BAEf38229A3EF5E",
-      balance: "1",
-      area: "transport",
-      image: "bamboo-watch.jpg",
-      description: "Product Description",
-      price: 65,
-      min_amount_account: 10,
-      category: "Accessories",
-      quantity: 24,
-      inventoryStatus: "INSTOCK",
-      rating: 5,
-      image:
-        "https://primefaces.org/cdn/primereact/images/avatar/asiyajavayant.png",
-      work_location: { name: "Germany", code: "DE" },
-    },
-    {
-      id: "1000",
-      code: "f230fh0g3",
-      name: "Bambooz",
-      surname: "Watch",
-      email: "bambo@ispay.com",
-      last_signin: new Date(2024, 9, 7),
-      last_faucet: new Date(2024, 9, 7),
-      last_movement: new Date(2024, 9, 7),
-      account: "0x49faC9237f1e4364F584866777BAEf38229859F5",
-      balance: "12",
-      area: "transport",
-      image: "bamboo-watch.jpg",
-      description: "Product Description",
-      price: 65,
-      min_amount_account: 10,
-      category: "Accessories",
-      quantity: 24,
-      inventoryStatus: "INSTOCK",
-      rating: 5,
-      image:
-        "https://primefaces.org/cdn/primereact/images/avatar/ivanmagalhaes.png",
-      work_location: { name: "Mexico", code: "MX" },
-    },
+    // Add more product objects...
   ]);
 
-  const handleSearch = (event, field) => {
-    setSearch({ ...search, [field]: event.target.value });
+  // Search and filter function
+  const handleSearch = (event) => {
+    setSearch(event.target.value);
   };
 
-  const filteredProducts = products.filter((product) => {
-    const fullName = `${product.name} ${product.surname}`.toLowerCase(); // Concatenamos nombre y apellido
-    return (
-      fullName.includes(search.name.toLowerCase()) &&
-      product.email.toLowerCase().includes(search.email.toLowerCase()) &&
-      product.last_signin
-        .toLocaleDateString()
-        .includes(search.lastSignin.toLowerCase()) &&
-      product.area.toLowerCase().includes(search.area.toLowerCase()) &&
-      product.last_faucet
-        .toLocaleDateString()
-        .includes(search.lastFaucet.toLowerCase()) &&
-      product.account.toLowerCase().includes(search.account.toLowerCase())
-    );
-  });
-  
+  const filteredProducts = products.filter(
+    (product) =>
+      product.name.toLowerCase().includes(search.toLowerCase()) ||
+      product.email.toLowerCase().includes(search.toLowerCase())
+  );
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -179,15 +80,9 @@ export default function AccountsTable() {
   };
 
   const refreshTable = () => {
-    setSearch({
-      name: "",
-      email: "",
-      lastSignin: "",
-      area: "",
-      lastFaucet: "",
-      account: "",
-    });
-    setPage(0);
+    // Logic for refreshing the table, you can re-fetch data or reset filters
+    setSearch(""); // Clearing the search input as an example
+    setPage(0); // Resetting the page
   };
 
   return (
@@ -203,6 +98,13 @@ export default function AccountsTable() {
       >
         <h2>Accounts in your organization</h2>
         <Box sx={{ display: "flex", gap: 2 }}>
+          <TextField
+            variant="outlined"
+            label="Search by Name or Email"
+            value={search}
+            onChange={handleSearch}
+            sx={{ width: "300px" }}
+          />
           <IconButton onClick={refreshTable} color="primary">
             <Refresh />
           </IconButton>
@@ -230,71 +132,6 @@ export default function AccountsTable() {
                 <TableCell>Account</TableCell>
                 <TableCell>Balance</TableCell>
                 <TableCell>Actions</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell></TableCell>
-                <TableCell>
-                  <TextField
-                    label="Search by Name"
-                    value={search.name}
-                    onChange={(e) => handleSearch(e, "name")}
-                    variant="outlined"
-                    size="small"
-                    fullWidth
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    label="Search by Email"
-                    value={search.email}
-                    onChange={(e) => handleSearch(e, "email")}
-                    variant="outlined"
-                    size="small"
-                    fullWidth
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    label="Search by Last Sign-in"
-                    value={search.lastSignin}
-                    onChange={(e) => handleSearch(e, "lastSignin")}
-                    variant="outlined"
-                    size="small"
-                    fullWidth
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    label="Search by Area"
-                    value={search.area}
-                    onChange={(e) => handleSearch(e, "area")}
-                    variant="outlined"
-                    size="small"
-                    fullWidth
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    label="Search by Last Faucet"
-                    value={search.lastFaucet}
-                    onChange={(e) => handleSearch(e, "lastFaucet")}
-                    variant="outlined"
-                    size="small"
-                    fullWidth
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    label="Search by Account"
-                    value={search.account}
-                    onChange={(e) => handleSearch(e, "account")}
-                    variant="outlined"
-                    size="small"
-                    fullWidth
-                  />
-                </TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

@@ -11,9 +11,11 @@ const getColor = (theme, colorName) => {
     accent: '#2c83b9',  // Azul claro         ->es un buen color para formularios o elementos secundarios, ya que transmite calma y claridad.
     background: '#000000',  // Negro          -> Fondo 
     background2: '#111', //                -> Fondo algo distinto
+    background3: '#1e1e1e', //                -> Fondo algo distinto
     text: '#ffffff',  // Blanco               -> Texto
     text2: '#e3e3e3', // blanco-gris
-    both:'#007bff' // azul -> ambos modos 
+    both:'#007bff', // azul -> ambos modos 
+    shadow: 'rgba(255, 255, 255, 0.1)',
   };
 
   const lightPalette = {
@@ -22,9 +24,12 @@ const getColor = (theme, colorName) => {
     accent: '#04388b',  // Azul oscuro -rey      -> podría ser el color principal para botones de acción, ya que denota energía y positividad
     background: '#ffffff',  // Blanco          -> Fondo
     background2: '#d9d9d9', //                -> Fondo algo distinto
+    background3: '#f8f9fa', //                -> Fondo algo distinto
     text: '#333333',  // Gris oscuro           -> Texto
     text2: '#666666', // gris
-    both:'#007bff' // azul -> ambos modos 
+    both:'#007bff', // azul -> ambos modos
+    shadow: 'rgba(0, 0, 0, 0.1)',
+
   };
 
   // Switch between palettes based on theme mode

@@ -4,10 +4,13 @@ import CardInfoInicio from "./components/CardInfo";
 import { Box } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import TableHome from "./components/TableHome";
+import getColor from '@/themes/colorUtils';
+import { useTheme } from '@mui/material';
 
 export default function home() {
+  const theme = useTheme();
   return (
-    <Grid container rowSpacing={3} columnSpacing={{ xs: 4, sm: 4, md: 4 }}>
+    <Grid container rowSpacing={3} columnSpacing={{ xs: 4, sm: 4, md: 4, background:getColor(theme,'background')}}>
       <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center" }}>
         <CardInfoInicio
           title={"Account"}

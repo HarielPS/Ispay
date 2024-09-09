@@ -52,41 +52,67 @@ export default function Page() {
     work_location: "",
   });
 
+  const [errors, setErrors] = useState({
+    company_name: "",
+    ID_company_tax: "",
+    website: "",
+    legal_company_name: "",
+    number_employees: "",
+  });
+
   // Form validation function
-  const validateFields = (fields) => {
-  for (const key in fields) {
-    if (typeof fields[key] === "object" && fields[key] !== null) {
-      if (!validateFields(fields[key])) return false;
-    } else if (Array.isArray(fields[key])) {
-      if (fields[key].length === 0) return false;
+  const validateFields = () => {
+    let valid = true;
+    let newErrors = { ...errors };
+
+    if (!companyInformation.company_name) {
+      newErrors.company_name = "El nombre de la empresa es obligatorio.";
+      valid = false;
     } else {
-      if (!fields[key]) return false;
+      newErrors.company_name = "";
     }
-  }
-  return true;
+
+    if (!companyInformation.ID_company_tax) {
+      newErrors.ID_company_tax = "El ID de la empresa es obligatorio.";
+      valid = false;
+    } else {
+      newErrors.ID_company_tax = "";
+    }
+
+    if (!companyInformation.website || !/^https?:\/\/[^\s$.?#].[^\s]*$/.test(companyInformation.website)) {
+      newErrors.website = "Introduce una URL válida (comienza con http:// o https://).";
+      valid = false;
+    } else {
+      newErrors.website = "";
+    }
+
+    if (!companyInformation.legal_company_name) {
+      newErrors.legal_company_name = "El nombre legal de la empresa es obligatorio.";
+      valid = false;
+    } else {
+      newErrors.legal_company_name = "";
+    }
+
+    setErrors(newErrors);
+    return valid;
   };
 
   const handleNext = () => {
-    // validateFields(getCurrentFormData())
-    if (true) {
+    if (validateFields()) {
       setActiveStep((prevStep) => prevStep + 1);
     } else {
       toast.current.show({
         severity: "error",
         summary: "Error",
-        detail: "You must complete all the fields",
+        detail: "Por favor, completa todos los campos obligatorios.",
         life: 3000,
       });
     }
   };
 
-  const handleBack = () => {
-    setActiveStep((prevStep) => prevStep - 1);
-  };
-
   const handleSubmit = async () => {
     setLoading(true);
-    if (validateFields(getCurrentFormData())) {
+    if (validateFields()) {
       const company = new Company(companyInformation);
       const user = new User(generalUserInformation, userSafetyInfo);
 
@@ -104,36 +130,22 @@ export default function Page() {
         }, 2000);
       }
     } else {
+      setLoading(false);
       toast.current.show({
         severity: "error",
         summary: "Error",
-        detail: "You must complete all the fields",
+        detail: "Please complete all required fields.",
         life: 3000,
       });
     }
   };
-
-  const getCurrentFormData = () => {
-    switch (activeStep) {
-      case 0:
-        return companyInformation;
-      case 1:
-        return generalUserInformation;
-      case 2:
-        return userSafetyInfo;
-      default:
-        return {};
-    }
-  };
-
-  const steps = ["Company Information", "General User Information", "Security Questions"];
 
   return (
     <Box sx={{ backgroundColor: getColor(theme, "background"), color: getColor(theme, "text"), minHeight: "100vh", padding: 3 }}>
       <Toast ref={toast} />
 
       <Stepper activeStep={activeStep} alternativeLabel sx={{ backgroundColor: getColor(theme, "background") }}>
-        {steps.map((label, index) => (
+        {["Company Information", "General User Information", "Security Questions"].map((label, index) => (
           <Step key={index}>
             <StepLabel>{label}</StepLabel>
           </Step>
@@ -145,6 +157,7 @@ export default function Page() {
           <CompanySignup 
             companyInformation={companyInformation} 
             setCompanyInformation={setCompanyInformation} 
+            errors={errors}
           />
         )}
         {activeStep === 1 && (
@@ -163,14 +176,14 @@ export default function Page() {
 
       <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
         <Button 
-          onClick={handleBack} 
+          onClick={() => setActiveStep((prevStep) => prevStep - 1)} 
           disabled={activeStep === 0} 
           variant="contained"
           sx={{ backgroundColor: theme.palette.primary.main, color: "white" }}
         >
           Back
         </Button>
-        {activeStep === steps.length - 1 ? (
+        {activeStep === 2 ? (
           <Button 
             onClick={handleSubmit} 
             variant="contained"
