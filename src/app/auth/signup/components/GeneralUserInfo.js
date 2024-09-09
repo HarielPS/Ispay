@@ -62,7 +62,6 @@ export default function GeneralUserInfo({
                   ID employee
                 </label>
                 <InputText
-                  keyfilter="alphanum"
                   placeholder="ID employee"
                   className="w-full"
                   value={generalUserInformation.ID_user}
@@ -76,7 +75,6 @@ export default function GeneralUserInfo({
                   Name
                 </label>
                 <InputText
-                  keyfilter="alpha"
                   placeholder="Name"
                   className="w-full"
                   value={generalUserInformation.name}
@@ -90,7 +88,6 @@ export default function GeneralUserInfo({
                   Surname
                 </label>
                 <InputText
-                  keyfilter="alpha"
                   placeholder="Surname"
                   className="w-full"
                   value={generalUserInformation.surname}

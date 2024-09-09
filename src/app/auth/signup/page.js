@@ -80,7 +80,7 @@ export default function page() {
   };
 
   const handleNextView = (data) => {
-    if (validateFields(data) | 1) {
+    if (validateFields(data)) {
       stepperRef.current.nextCallback();
     } else {
       toast.current.show({
@@ -96,11 +96,19 @@ export default function page() {
     setLoading(true);
     if (validateFields(data)) {
       const company = new Company(companyInformation);
-      const user = new User(generalUserInformation, userSafetyInfo);
-      console.log(user.toFirebase());
-
-      const signupSuccess = await company.signup(user.toFirebase(), "");
-      if (signupSuccess) {
+      //Aqui juntamos la info de generalUser con userSafety
+      const joinUserInformation = {
+        ...generalUserInformation,
+        ...userSafetyInfo,
+        ID_company_tax: companyInformation.ID_company_tax,
+      };
+      const user = new User(joinUserInformation);
+      console.log(user.toJSON());
+      const signupSuccess = await company.FB_createCompany(
+        joinUserInformation,
+        ""
+      );
+      if (signupSuccess.success) {
         setLoading(false);
         toast.current.show([
           {
@@ -117,7 +125,7 @@ export default function page() {
           },
         ]);
         setDataCompanyLocalS(company.toJSON());
-        setDataAdminLocalS(user.toFirebase());
+        setDataAdminLocalS(user.toJSON());
 
         const checkDataSaved = setInterval(() => {
           const savedCompany = dataCompanyLocalS; // función que recupera los datos guardados
@@ -133,6 +141,7 @@ export default function page() {
         }, 500); // Comprueba cada 500ms
       }
     } else {
+      setLoading(false);
       toast.current.show({
         severity: "error",
         summary: "Error",
