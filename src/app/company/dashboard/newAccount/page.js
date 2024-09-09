@@ -7,14 +7,10 @@ import { InputMask } from "primereact/inputmask";
 import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
-import { InputNumber } from "primereact/inputnumber";
-import { Divider } from "primereact/divider";
 import { ScrollPanel } from "primereact/scrollpanel";
-import { MultiSelect } from "primereact/multiselect";
 import { Toast } from "primereact/toast";
 import { Checkbox } from "primereact/checkbox";
 import DetailsSection from "./components/DetailsSection";
-import { Tooltip } from "primereact/tooltip";
 import { groupedRoles } from "./helpers/list.roles";
 import { useLocalStorage } from "primereact/hooks";
 import User from "@/services/Firebase/models/User";
@@ -88,9 +84,9 @@ export default function newAccount() {
         const employeeAccount = new EmployeeAccount(createDataAccount);
         EAResponse = await employeeAccount.FB_createUser();
       }
-      //const user = new User(createDataAccount);
-      //const userResponse = await user.FB_createUser(); //Falta agregar metodo a la clase user
-      if (EAResponse.success && true) {
+      const user = new User(createDataAccount);
+      const userResponse = await user.FB_createUser(); //Falta agregar metodo a la clase user
+      if (EAResponse.success && userResponse.success) {
         setLoading(false);
         toast.current.show([
           {
