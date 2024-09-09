@@ -1,44 +1,33 @@
 "use client";
-import React, { useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  TablePagination,
-  TextField,
-  Button,
-  Avatar,
-  InputBase,
-  Box,
-  IconButton,
-} from "@mui/material";
-import { Dialog } from "primereact/dialog";
-import { Refresh } from "@mui/icons-material"; 
-import getColor from "@/themes/colorUtils";
-import { useTheme } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
+import { Button } from "primereact/button";
+import { FilterMatchMode, FilterOperator } from "primereact/api";
+import { SplitButton } from "primereact/splitbutton";
+import { Tag } from "primereact/tag";
+import { IconField } from "primereact/iconfield";
+import { InputIcon } from "primereact/inputicon";
+import { InputText } from "primereact/inputtext";
+import { Calendar } from "primereact/calendar";
 
-export default function AccountsTable() {
-  const [search, setSearch] = useState({
-    name: "",
-    email: "",
-    lastSignin: "",
-    area: "",
-    lastFaucet: "",
-    account: "",
-  });
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedAccount, setSelectedAccount] = useState(null);
-  const [transferAmount, setTransferAmount] = useState("");
-
-  const theme = useTheme();
-
-// datos
+export default function TableHome() {
+  const [rowClick, setRowClick] = useState(true);
+  const [selectedProducts, setSelectedProducts] = useState(null);
+  const [globalFilterValue, setGlobalFilterValue] = useState("");
+  const items = [
+    {
+      label: "Deposit",
+      icon: "pi pi-directions",
+      command: () => {
+        toast.current.show({
+          severity: "success",
+          summary: "Updated",
+          detail: "Data Updated",
+        });
+      },
+    },
+  ];
   const [products, setProducts] = useState([
     {
       id: "1000",
@@ -115,7 +104,7 @@ export default function AccountsTable() {
     {
       id: "1000",
       code: "f230fh0g3",
-      name: "Bambooz",
+      name: "Bamboo",
       surname: "Watch",
       email: "bambo@ispay.com",
       last_signin: new Date(2024, 9, 7),
@@ -137,266 +126,237 @@ export default function AccountsTable() {
       work_location: { name: "Mexico", code: "MX" },
     },
   ]);
-
-  const handleSearch = (event, field) => {
-    setSearch({ ...search, [field]: event.target.value });
-  };
-
-  const filteredProducts = products.filter((product) => {
-    const fullName = `${product.name} ${product.surname}`.toLowerCase(); // Concatenamos nombre y apellido
-    return (
-      fullName.includes(search.name.toLowerCase()) &&
-      product.email.toLowerCase().includes(search.email.toLowerCase()) &&
-      product.last_signin
-        .toLocaleDateString()
-        .includes(search.lastSignin.toLowerCase()) &&
-      product.area.toLowerCase().includes(search.area.toLowerCase()) &&
-      product.last_faucet
-        .toLocaleDateString()
-        .includes(search.lastFaucet.toLowerCase()) &&
-      product.account.toLowerCase().includes(search.account.toLowerCase())
-    );
+  const [filters, setFilters] = useState({
+    "work_location.name": { value: null, matchMode: FilterMatchMode.CONTAINS },
+    code: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    name: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    surname: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    last_signin: {
+      operator: FilterOperator.AND,
+      constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }],
+    },
+    last_faucet: {
+      operator: FilterOperator.AND,
+      constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }],
+    },
+    last_movement: {
+      operator: FilterOperator.AND,
+      constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }],
+    },
+    account: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    area: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    balance: { value: null, matchMode: FilterMatchMode.EQUALS },
   });
-  
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+  const onFilterChange = (e, field) => {
+    const value = e.value ? new Date(e.value) : null;
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [field]: { value, matchMode: FilterMatchMode.DATE_IS },
+    }));
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(+event.target.value);
-    setPage(0);
+  const clearFilter = (field) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [field]: {
+        value: null,
+        matchMode: prevFilters[field].matchMode,
+        operator: prevFilters[field].operator,
+      },
+    }));
+  };
+  const DateFilter = ({ field }) => (
+    <Calendar
+      onChange={(e) => onFilterChange(e, field)}
+      dateFormat="yy-mm-dd"
+      showOnFocus
+      placeholder="Select a date"
+    />
+  );
+
+  const header = (
+    <div className="flex flex-wrap align-items-center justify-content-between gap-2">
+      <span className="text-xl text-900 font-bold">
+        Accounts in your organitation
+      </span>
+      <Button icon="pi pi-refresh" rounded raised />
+    </div>
+  );
+  const UserColumn = (option) => {
+    return (
+      <div className="flex align-items-center gap-2">
+        <img alt={option.name} src={option.image} width="32" />
+        <div>
+          {" "}
+          {/*//className="flex flex-column"*/}
+          <span>{option.name.split(" ")[0] + " "}</span>
+          <span>{option.surname.split(" ")[0]}</span>
+        </div>
+      </div>
+    );
   };
 
-  const openModal = (account) => {
-    setSelectedAccount(account);
-    setModalVisible(true);
-  };
-
-  const transferir = () => {
-    console.log(`Transferir ${transferAmount} a ${selectedAccount.account}`);
-    setModalVisible(false);
-  };
-
-  const refreshTable = () => {
-    setSearch({
-      name: "",
-      email: "",
-      lastSignin: "",
-      area: "",
-      lastFaucet: "",
-      account: "",
-    });
-    setPage(0);
-  };
-
-  return (
-    <>
-      {/* Title */}
-      <Box
-        sx={{
-          padding: 2,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <h2>Accounts in your organization</h2>
-        <Box sx={{ display: "flex", gap: 2 }}>
-          <IconButton onClick={refreshTable} color="primary">
-            <Refresh />
-          </IconButton>
-        </Box>
-      </Box>
-
-      <Paper
-        sx={{
-          width: "100%",
-          overflow: "hidden",
-          background: getColor(theme, "background3"),
-        }}
-      >
-        {/* Table Component */}
-        <TableContainer>
-          <Table stickyHeader>
-            <TableHead>
-              <TableRow>
-                <TableCell>Code</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Last Sign-in</TableCell>
-                <TableCell>Area</TableCell>
-                <TableCell>Last Faucet</TableCell>
-                <TableCell>Account</TableCell>
-                <TableCell>Balance</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell></TableCell>
-                <TableCell>
-                  <TextField
-                    label="Search by Name"
-                    value={search.name}
-                    onChange={(e) => handleSearch(e, "name")}
-                    variant="outlined"
-                    size="small"
-                    fullWidth
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    label="Search by Email"
-                    value={search.email}
-                    onChange={(e) => handleSearch(e, "email")}
-                    variant="outlined"
-                    size="small"
-                    fullWidth
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    label="Search by Last Sign-in"
-                    value={search.lastSignin}
-                    onChange={(e) => handleSearch(e, "lastSignin")}
-                    variant="outlined"
-                    size="small"
-                    fullWidth
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    label="Search by Area"
-                    value={search.area}
-                    onChange={(e) => handleSearch(e, "area")}
-                    variant="outlined"
-                    size="small"
-                    fullWidth
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    label="Search by Last Faucet"
-                    value={search.lastFaucet}
-                    onChange={(e) => handleSearch(e, "lastFaucet")}
-                    variant="outlined"
-                    size="small"
-                    fullWidth
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    label="Search by Account"
-                    value={search.account}
-                    onChange={(e) => handleSearch(e, "account")}
-                    variant="outlined"
-                    size="small"
-                    fullWidth
-                  />
-                </TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredProducts
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((product) => (
-                  <TableRow hover key={product.id}>
-                    <TableCell>{product.code}</TableCell>
-                    <TableCell>
-                      <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <Avatar
-                          src={product.image}
-                          alt={product.name}
-                          sx={{ marginRight: 1 }}
-                        />
-                        {product.name} {product.surname}
-                      </Box>
-                    </TableCell>
-                    <TableCell>{product.email}</TableCell>
-                    <TableCell>
-                      {product.last_signin.toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>{product.area}</TableCell>
-                    <TableCell>
-                      {product.last_faucet.toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <div
-                        style={{
-                          maxWidth: "7rem",
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
-                      >
-                        {product.account}
-                      </div>
-                    </TableCell>
-                    <TableCell>{product.balance}</TableCell>
-                    <TableCell>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => openModal(product)}
-                      >
-                        Depositar
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-
-        {/* Pagination */}
-        <TablePagination
-          rowsPerPageOptions={[10, 25, 100]}
-          component="div"
-          count={filteredProducts.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
+  const CountryColumn = (option) => {
+    return (
+      <div className="flex flex-column align-items-start gap-2">
+        <span
+          className={"flag flag-" + option.work_location.code.toLowerCase()}
+          style={{ width: "22px", height: "15px" }}
         />
-      </Paper>
+        <span style={{ fontSize: ".8rem" }}> {option.work_location.code}</span>
+      </div>
+    );
+  };
 
-      {/* Transfer Modal */}
-      <Dialog
-        header="Transferencia"
-        visible={modalVisible}
-        style={{ width: "400px" }}
-        onHide={() => setModalVisible(false)}
+  const AccountColumn = (option) => {
+    const fistPart = option.account.slice(0, 5);
+    const lastPart = option.account.slice(-4);
+    return (
+      <div className="flex align-items-start gap-2" style={{ width: "7rem" }}>
+        <span
+          style={{
+            maxWidth: "fit-content",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {fistPart + "..." + lastPart}
+        </span>
+      </div>
+    );
+  };
+  const DateColumn = (rowData, field) => {
+    const value = field
+      .split(".")
+      .reduce((acc, part) => acc && acc[part], rowData);
+    //const date = value ? new Date(value) : null;
+    const date = value instanceof Date ? value : new Date(value);
+    return (
+      <div className="flex flex-column align-items-start gap-2">
+        <span>{date ? date.toLocaleDateString() : "--"}</span>
+        <span>{date ? date.toLocaleTimeString() : "--"}</span>
+      </div>
+    );
+  };
+
+  const OptionColumn = (data) => {
+    return (
+      <div className="flex flex-column align-items-start gap-2">
+        <SplitButton
+          label="Deposit"
+          icon="pi pi-directions"
+          onClick={() => alert("Seleccionado")}
+          model={items}
+        />
+      </div>
+    );
+  };
+  const BalanceColumn = (data) => {
+    return (
+      <Tag
+        severity={data.balance < data.min_amount_account ? "danger" : "success"}
       >
-        {selectedAccount && (
-          <>
-            <div>
-              <span>
-                <b>Nombre:</b> {selectedAccount.name} {selectedAccount.surname}
-              </span>
-            </div>
-            <div>
-              <span>
-                <b>Wallet:</b> {selectedAccount.account}
-              </span>
-            </div>
-            <div style={{ marginTop: "20px" }}>
-              <InputBase
-                value={transferAmount}
-                onChange={(e) => setTransferAmount(e.target.value)}
-                placeholder="Ingrese el monto"
-                fullWidth
-                sx={{ border: "1px solid #ccc", padding: "10px" }}
-              />
-            </div>
-            <div style={{ marginTop: "20px", textAlign: "right" }}>
-              <Button variant="contained" color="primary" onClick={transferir}>
-                Transferir
-              </Button>
-            </div>
-          </>
-        )}
-      </Dialog>
-    </>
+        <div className="flex flex-column align-items-start gap-2">
+          {data.balance + " ETH"}
+        </div>
+      </Tag>
+    );
+  };
+
+  useEffect(() => {
+    console.log(selectedProducts);
+  }, [selectedProducts]);
+  return (
+    <DataTable
+      value={products}
+      header={header}
+      stripedRows
+      tableStyle={{ width: "100vw" }}
+      paginator
+      rows={10}
+      rowsPerPageOptions={[5, 10, 25, 50]}
+      filterDisplay="row"
+      filters={filters}
+      selectionMode={rowClick ? null : "checkbox"}
+      selection={selectedProducts}
+      onSelectionChange={(e) => setSelectedProducts(e.value)}
+      scrollable
+      scrollHeight="80vh"
+      emptyMessage="No accounts created."
+      removableSort
+    >
+      {/* <Column
+        selectionMode="multiple"
+        headerStyle={{ width: "3rem" }}
+        style={{ minWidth: "5rem" }}
+      /> */}
+      <Column
+        //field="name"
+        body={UserColumn}
+        header="Name"
+        filter
+        filterField="name"
+        filterPlaceholder="Search"
+        style={{ minWidth: "12rem" }}
+        //style={{ maxWidth: "100px" }}
+      />
+      <Column
+        field="work_location.name"
+        body={CountryColumn}
+        header="Country"
+        sortable
+        style={{ maxWidth: "100px" }}
+        //filter
+        //filterPlaceholder="Country"
+      />
+      <Column
+        //field="last_signin"
+        body={(rowData) => DateColumn(rowData, "last_signin")}
+        header="last signin"
+        filter
+        filterField="last_signin"
+        style={{ minWidth: "14rem" }}
+        filterElement={<DateFilter field="last_signin" />}
+        //style={{ maxWidth: "120px" }}
+      />
+      <Column
+        field="area"
+        header="area"
+        filter
+        filterPlaceholder="Search"
+        style={{ minWidth: "12rem" }}
+        //style={{ width: "100px" }}
+      />
+
+      <Column
+        //field="last_faucet"
+        body={(rowData) => DateColumn(rowData, "last_faucet")}
+        header="last faucet"
+        filter
+        filterField="last_faucet"
+        style={{ minWidth: "14rem" }}
+        filterElement={<DateFilter field="last_faucet" />}
+        //style={{ maxWidth: "120px" }}
+      />
+      <Column
+        //field="last_faucet"
+        body={(rowData) => DateColumn(rowData, "last_movement")}
+        header="last movement"
+        filter
+        filterField="last_movement"
+        style={{ minWidth: "14rem" }}
+        filterElement={<DateFilter field="last_movement" />}
+        //style={{ maxWidth: "120px" }}
+      />
+      <Column
+        header="account"
+        body={AccountColumn}
+        style={{ maxWidth: "90px" }}
+      />
+      <Column body={BalanceColumn} header="balance" field="balance" sortable />
+      <Column body={OptionColumn} header="Options" />
+    </DataTable>
   );
 }
