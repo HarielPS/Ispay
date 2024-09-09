@@ -14,6 +14,8 @@ import Image from "next/image";
 import { Google as GoogleIcon, Apple as AppleIcon } from "@mui/icons-material";
 import getColor from '@/themes/colorUtils';
 import { useTheme } from '@mui/material';
+import { FBQueries } from "@/services/Firebase/Firebase.queries";
+
 
 const frases = [
   { "text": "La planificación financiera es el arte de proyectar el futuro en cifras, y los negocios son el arte de convertir esas cifras en realidad.", "author": "Anónimo" },
@@ -32,6 +34,8 @@ const Login = () => {
   const theme = useTheme();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState(null); // Para mostrar mensajes de error
+  const [success, setSuccess] = useState(false); // Para redirección si el login es exitoso
   const [currentFrase, setCurrentFrase] = useState("");
   const [currentAuthor, setCurrentAuthor] = useState("");
   const [fraseIndex, setFraseIndex] = useState(0);
@@ -53,7 +57,7 @@ const Login = () => {
               setFraseIndex((prevIndex) => (prevIndex + 1) % frases.length); // Cambia de frase
               setVisible(true); // Muestra la nueva frase
             }, 1000); // Tiempo de desvanecimiento
-          }, 5000); //5 seg
+          }, 5000); // 5 segundos
         }, 500);
       }
     };
@@ -61,9 +65,22 @@ const Login = () => {
     escribirFrase(frases[fraseIndex].text, frases[fraseIndex].author);
   }, [fraseIndex]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
     console.log("Email:", email, "Password:", password);
+
+    // Llamar a la función de Firebase para iniciar sesión
+    const response = await FBQueries.Login(email, password);
+
+    if (response.success) {
+      // Si el login es exitoso, redirigir al dashboard
+      console.log("Inicio de sesión exitoso");
+      setSuccess(true); // Puedes manejar la redirección aquí o usando un `useRouter` si usas Next.js
+      window.location.href = "/dashboard"; // Redirige al dashboard
+    } else {
+      // Si ocurre un error, mostrar un mensaje
+      setError(response.message);
+    }
   };
 
   return (
@@ -139,6 +156,13 @@ const Login = () => {
             <Typography component="h1" variant="h4" sx={{ mb: 3 }}>
               Iniciar Sesión
             </Typography>
+
+            {error && (
+              <Typography color="error" variant="body2" sx={{ mt: 2 }}>
+                {error}
+              </Typography>
+            )}
+
             <form onSubmit={handleSubmit} style={{ width: "100%" }}>
               <TextField
                 label="Correo Electrónico"
@@ -147,9 +171,6 @@ const Login = () => {
                 margin="normal"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                InputLabelProps={{ style: { color: getColor(theme, 'text') } }}
-                InputProps={{ style: { color: getColor(theme, 'text') } }}
-                sx={{borderRadius: "4px" }}
                 required
               />
               <TextField
@@ -160,9 +181,6 @@ const Login = () => {
                 margin="normal"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                InputLabelProps={{ style: { color: getColor(theme, 'text') } }}
-                InputProps={{ style: { color: getColor(theme, 'text') } }}
-                sx={{borderRadius: "4px" }}
                 required
               />
               <Button
@@ -172,55 +190,11 @@ const Login = () => {
                 sx={{
                   mt: 3,
                   mb: 2,
-                  backgroundColor: getColor(theme,'primary'),
-                  color: "#FFFFFF",
-                  "&:hover": {  opacity: 0.8},
                 }}
               >
                 Iniciar Sesión
               </Button>
             </form>
-
-            <Box sx={{ textAlign: "center", color: getColor(theme, 'text'), mt: 2 }}>
-              O iniciar sesión con:
-            </Box>
-
-            <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid item xs={12} sm={6}>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  startIcon={<GoogleIcon />}
-                  sx={{
-                    color: getColor(theme, 'text'),
-                    borderColor: getColor(theme, 'text'),
-                    "&:hover": {
-                      backgroundColor: getColor(theme, 'background2'),
-                      borderColor: getColor(theme, 'background2'),
-                    },
-                  }}
-                >
-                  Google
-                </Button>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  startIcon={<AppleIcon />}
-                  sx={{
-                    color: getColor(theme, 'text'),
-                    borderColor: getColor(theme, 'text'),
-                    "&:hover": {
-                      backgroundColor: getColor(theme, 'background2'),
-                      borderColor: getColor(theme, 'background2'),
-                    },
-                  }}
-                >
-                  Apple
-                </Button>
-              </Grid>
-            </Grid>
 
             <Typography align="center" sx={{ mt: 3, color:getColor(theme, 'text')}}>
               ¿No tienes una cuenta?{" "}

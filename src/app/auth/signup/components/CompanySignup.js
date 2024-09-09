@@ -16,7 +16,7 @@ import getColor from "@/themes/colorUtils";
 import { ChevronDownIcon } from "primereact/icons/chevrondown";
 import { ChevronRightIcon } from "primereact/icons/chevronright";
 
-export default function CompanySignup({ companyInformation, setCompanyInformation, errors }) {
+export default function CompanySignup({ companyInformation, setCompanyInformation, companyImageFile, setCompanyImageFile, errors, setErrors }) {
   const toast = useRef(null);
   const theme = useTheme();
 
@@ -67,18 +67,22 @@ export default function CompanySignup({ companyInformation, setCompanyInformatio
     );
   };
 
-  // Imagen de perfil
+
+  // Función para manejar el cambio de imagen de perfil
   const handleProfileImgChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setCompanyImageFile(file);  // Aquí actualizamos el estado en el componente padre
+
+      // Vista previa en base64
       const reader = new FileReader();
       reader.onloadend = () => {
         setCompanyInformation((prevState) => ({
           ...prevState,
-          company_image: reader.result,
+          company_image: reader.result,  // Aquí solo para la vista previa
         }));
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(file);  // Leer el archivo como base64 para la vista previa
     }
   };
 
@@ -142,7 +146,10 @@ export default function CompanySignup({ companyInformation, setCompanyInformatio
                   width: "100%",
                 }}
                 value={companyInformation.ID_company_tax}
-                onChange={(e) => handleChange("ID_company_tax", e.target.value)}
+                onChange={(e) => {
+                  handleChange("ID_company_tax", e.target.value);
+                  console.log("Company Tax ID: ", e.target.value); // Agrega este log para verificar si el valor está siendo capturado
+                }}
               />
               {errors.ID_company_tax && (
                 <Typography variant="caption" color="error" display="block" sx={{ mt: 1 }}>

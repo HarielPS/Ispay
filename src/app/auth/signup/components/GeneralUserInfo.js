@@ -65,8 +65,6 @@ export default function GeneralUserInfo({
                   ID employee
                 </label>
                 <InputText
-                  style={{background:getColor(theme,'background'),color:getColor(theme,'text')}}
-                  keyfilter="alphanum"
                   placeholder="ID employee"
                   className="w-full"
                   value={generalUserInformation.ID_user}
@@ -80,8 +78,6 @@ export default function GeneralUserInfo({
                   Name
                 </label>
                 <InputText
-                  style={{background:getColor(theme,'background'),color:getColor(theme,'text')}}
-                  keyfilter="alpha"
                   placeholder="Name"
                   className="w-full"
                   value={generalUserInformation.name}
@@ -95,8 +91,6 @@ export default function GeneralUserInfo({
                   Surname
                 </label>
                 <InputText
-                  style={{background:getColor(theme,'background'),color:getColor(theme,'text')}}
-                  keyfilter="alpha"
                   placeholder="Surname"
                   className="w-full"
                   value={generalUserInformation.surname}

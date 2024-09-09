@@ -33,13 +33,13 @@ export default function DetailsSection({
       <Divider />
       <Grid size={4}>
         <div className="flex-auto">
-          <label htmlFor="minAmount" className="font-bold block mb-2">
+          <label htmlFor="min_amount_account" className="font-bold block mb-2">
             Min amount in account
           </label>
           <InputNumber
             inputId="currency-us"
-            value={createDataAccount.min_amount}
-            onValueChange={(e) => handleChange("min_amount", e.value)}
+            value={createDataAccount.min_amount_account}
+            onValueChange={(e) => handleChange("min_amount_account", e.value)}
             mode="currency"
             currency="USD"
             suffix=" USTD"
@@ -50,13 +50,13 @@ export default function DetailsSection({
       </Grid>
       <Grid size={4}>
         <div className="flex-auto">
-          <label htmlFor="maxAmount" className="font-bold block mb-2">
+          <label htmlFor="max_amount_account" className="font-bold block mb-2">
             maximum amount to deposit
           </label>
           <InputNumber
             inputId="currency-us"
-            value={createDataAccount.max_amount}
-            onValueChange={(e) => handleChange("max_amount", e.value)}
+            value={createDataAccount.max_amount_account}
+            onValueChange={(e) => handleChange("max_amount_account", e.value)}
             mode="currency"
             currency="USD"
             suffix=" USTD"
@@ -68,14 +68,14 @@ export default function DetailsSection({
       <Grid size={4}></Grid>
       <Grid size={4}>
         <div className="flex-auto">
-          <label htmlFor="startWithdraw" className="font-bold block mb-2">
+          <label htmlFor="start_withdraw_account" className="font-bold block mb-2">
             Start withdrawal time
           </label>
           <Calendar
             id="calendar-timeonly"
             placeholder="--:--"
-            value={createDataAccount.start_withdraw}
-            onChange={(e) => handleChange("start_withdraw", e.target.value)}
+            value={createDataAccount.start_withdraw_account}
+            onChange={(e) => handleChange("start_withdraw_account", e.target.value)}
             timeOnly
             className="w-full"
           />
@@ -83,14 +83,14 @@ export default function DetailsSection({
       </Grid>
       <Grid size={4}>
         <div className="flex-auto">
-          <label htmlFor="finalWithdraw" className="font-bold block mb-2">
+          <label htmlFor="final_withdraw_account" className="font-bold block mb-2">
             Final withdrawal time
           </label>
           <Calendar
             id="calendar-timeonly"
             placeholder="--:--"
-            value={createDataAccount.final_withdraw}
-            onChange={(e) => handleChange("final_withdraw", e.target.value)}
+            value={createDataAccount.final_withdraw_account}
+            onChange={(e) => handleChange("final_withdraw_account", e.target.value)}
             timeOnly
             className="w-full"
           />
@@ -98,12 +98,12 @@ export default function DetailsSection({
       </Grid>
       <Grid size={4}>
         <div className="flex-auto">
-          <label htmlFor="approvedDays" className="font-bold block mb-2">
+          <label htmlFor="days_account" className="font-bold block mb-2">
             approved days
           </label>
           <MultiSelect
-            value={createDataAccount.days}
-            onChange={(e) => handleChange("days", e.value)}
+            value={createDataAccount.days_account}
+            onChange={(e) => handleChange("days_account", e.value)}
             options={Days}
             optionLabel="name"
             placeholder="Select day or days"
@@ -114,14 +114,14 @@ export default function DetailsSection({
       </Grid>
       <Grid size={4}>
         <div className="flex-auto">
-          <label htmlFor="aprovvedCategories" className="font-bold block mb-2">
+          <label htmlFor="expense_category_account" className="font-bold block mb-2">
             approved categories
           </label>
           <MultiSelect
             filter
-            value={createDataAccount.expense_category}
+            value={createDataAccount.expense_category_account}
             options={expenseCategories}
-            onChange={(e) => handleChange("expense_category", e.value)}
+            onChange={(e) => handleChange("expense_category_account", e.value)}
             optionLabel="label"
             optionGroupLabel="label"
             optionGroupChildren="items"

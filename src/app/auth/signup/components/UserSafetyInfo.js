@@ -22,9 +22,10 @@ import {Paper, Typography, Avatar} from "@mui/material";
 import { useTheme } from "@mui/material";
 import getColor from "@/themes/colorUtils";
 
-export default function UserSafetyInfo({ userSafetyInfo, setUserSafetyInfo }) {
+export default function UserSafetyInfo({ userSafetyInfo, setUserSafetyInfo, userImageFile, setUserImageFile }) {
   const theme = useTheme();
   const toast = useRef(null);
+
   const groupedItemTemplate = (option) => {
     return (
       <div className="flex align-items-center">
@@ -102,17 +103,19 @@ export default function UserSafetyInfo({ userSafetyInfo, setUserSafetyInfo }) {
   const handleUserImgChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setUserImageFile(file);  // Aquí actualizamos el estado en el componente padre
+
+      // Vista previa en base64
       const reader = new FileReader();
       reader.onloadend = () => {
         setUserSafetyInfo((prevState) => ({
           ...prevState,
-          image: reader.result, 
+          image: reader.result,  // Aquí solo para la vista previa
         }));
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(file);  // Leer el archivo como base64 para la vista previa
     }
   };
-
 
   return (
 <>
