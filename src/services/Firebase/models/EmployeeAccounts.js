@@ -1,6 +1,6 @@
 import Wallet from "@/lib/wallet/Wallet.lib";
 import { doc, setDoc, collection, addDoc } from "firebase/firestore";
-import {db} from "../Firebase"
+import { db } from "../Firebase";
 
 export default class EmployeeAccount {
   static methods = {};
@@ -12,13 +12,14 @@ export default class EmployeeAccount {
     this.surname = EmployeeInformation.surname;
     this.last_signin = EmployeeInformation.last_signin || null;
     this.last_movement = EmployeeInformation.last_movement || null; //Aqui meter otra coleccion
+    this.last_faucet = EmployeeInformation.last_faucet || null;
     this.image = EmployeeInformation.image || "";
     this.wallet = new Wallet(
       wallet?.address,
       wallet?.privateKey,
       wallet?.balance
     );
-    this.work_location = EmployeeInformation.work_location || "";
+    this.work_location = EmployeeInformation.work_location || null;
     this.role = EmployeeInformation.role;
     //Datos relacionados con filtros para su wallet
     this.min_amount_account = EmployeeInformation.min_amount_account;
@@ -38,6 +39,7 @@ export default class EmployeeAccount {
       surname: this.surname,
       last_signin: this.last_signin,
       last_movement: this.last_movement,
+      las_faucet: this.last_faucet,
       image: this.image,
       wallet: {
         address: this.wallet.address,
@@ -55,13 +57,32 @@ export default class EmployeeAccount {
     };
   }
 
-  async FB_createUser(idCompany){
+  async FB_createUser() {
     //Registrara datos del empleado
-    const userEmployeeData = this.toJSON();
+    const EmployeeAccountData = this.toJSON();
+    const docID = EmployeeAccountData.ID_company_tax;
     try {
-      
+      /* const docRef = doc(db, "EMPRESAS", docID);
+      await setDoc(docRef, {}); */
+
+      //Agregamos la coleccion dentro de la empresa
+      const EmployeeAccountRef = collection(
+        db,
+        "EMPRESAS",
+        docID,
+        "EmployeeAccount"
+      );
+      await addDoc(EmployeeAccountRef, EmployeeAccountData);
+      return {
+        success: true,
+        message: "EmployeeAccount registrado correctamente",
+      };
     } catch (error) {
-      
+      console.log("Error al crear el documento: ", error);
+      return {
+        success: false,
+        message: `Error al registrar el EmployeeAccount ${error.message}`,
+      };
     }
   }
 }
