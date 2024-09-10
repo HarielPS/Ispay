@@ -1,12 +1,17 @@
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth"; // Agrega la importación correcta
-import { doc, setDoc, collection, addDoc } from "firebase/firestore";
-import { db, auth } from "./Firebase";  // Asegúrate de tener la configuración correcta de Firebase
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth"; 
+import { doc, setDoc, collection, addDoc, getDoc,getDocs } from "firebase/firestore"; // Añadir getDoc para obtener un documento
+import { db, auth } from "./Firebase";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 export const FBQueries = {};
 
+const cleanDocID = (docID) => {
+  return docID.trim().replace(/\s+/g, '_'); // Eliminar espacios al principio y final, y reemplazar los espacios intermedios por "_"
+};
+
 FBQueries.SignupCompany = async (companyData, userSafetyInfo, userData, companyImageFile, userImageFile) => {
-  const docID = companyData.ID_company_tax;
+
+  let docID = cleanDocID(companyData.ID_company_tax);
 
   // Verifica que el ID de la empresa esté definido
   if (!docID) {
@@ -60,9 +65,9 @@ FBQueries.SignupCompany = async (companyData, userSafetyInfo, userData, companyI
     };
 
     console.log("Guardando datos del usuario en Firestore...");
-    // Guardar los datos del usuario en Firestore
-    const userCollectionRef = collection(db, "EMPRESAS", docID, "USUARIO");
-    await addDoc(userCollectionRef, combinedUserData);
+    // Guardar los datos del usuario en Firestore usando el UID como ID del documento
+    const userDocRef = doc(db, "EMPRESAS", docID, "USUARIO", user.uid);
+    await setDoc(userDocRef, combinedUserData);
     console.log("Datos del usuario guardados correctamente en Firestore.");
 
     console.log("Guardando datos de la empresa en Firestore...");
@@ -80,6 +85,43 @@ FBQueries.SignupCompany = async (companyData, userSafetyInfo, userData, companyI
     return {
       success: false,
       message: `Error al registrar la empresa y usuario: ${error.message}`,
+    };
+  }
+};
+
+// Función para obtener el rol del usuario en Firestore
+FBQueries.GetUserRole = async (uid) => {
+  try {
+    console.log("Obteniendo rol del usuario con UID:", uid);
+
+    const companiesSnapshot = await getDocs(collection(db, "EMPRESAS"));
+    
+    for (const company of companiesSnapshot.docs) {
+      const companyTaxID = company.id;
+      const userDocRef = doc(db, "EMPRESAS", companyTaxID, "USUARIO", uid);  // Usamos el UID como ID del documento
+      const userDoc = await getDoc(userDocRef);
+
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        console.log("Rol del usuario encontrado:", userData.role);
+        return {
+          success: true,
+          role: userData.role, 
+          companyTaxID,
+        };
+      }
+    }
+    
+    console.error("No se encontró el documento del usuario en ninguna empresa.");
+    return {
+      success: false,
+      message: "No se encontró el rol del usuario.",
+    };
+  } catch (error) {
+    console.error("Error al obtener el rol del usuario:", error.message);
+    return {
+      success: false,
+      message: "Error al obtener el rol del usuario: " + error.message,
     };
   }
 };
@@ -106,3 +148,21 @@ FBQueries.Login = async (email, password) => {
   }
 };
 
+FBQueries.PrintCompanies = async () => {
+  try {
+    const companiesCollectionRef = collection(db, "EMPRESAS"); // Referencia a la colección EMPRESAS
+    const companiesSnapshot = await getDocs(companiesCollectionRef); // Obtener los documentos de la colección
+
+    if (companiesSnapshot.empty) {
+      console.log("No se encontraron empresas.");
+      return;
+    }
+
+    // Recorrer cada documento en la colección y mostrar sus datos
+    companiesSnapshot.forEach((doc) => {
+      console.log(`Empresa ID: ${doc.id}`, doc.data()); // Imprime el ID del documento y los datos
+    });
+  } catch (error) {
+    console.error("Error al obtener las empresas:", error.message);
+  }
+};

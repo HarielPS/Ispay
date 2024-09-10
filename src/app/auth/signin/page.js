@@ -16,7 +16,6 @@ import getColor from '@/themes/colorUtils';
 import { useTheme } from '@mui/material';
 import { FBQueries } from "@/services/Firebase/Firebase.queries";
 
-
 const frases = [
   { "text": "La planificación financiera es el arte de proyectar el futuro en cifras, y los negocios son el arte de convertir esas cifras en realidad.", "author": "Anónimo" },
   { "text": "El dinero es una herramienta, no un objetivo. Usarlo sabiamente define el éxito en cualquier empresa.", "author": "Anónimo" },
@@ -29,6 +28,7 @@ const frases = [
   { "text": "El éxito de una empresa se mide no solo por sus ingresos, sino por la salud de sus finanzas.", "author": "Anónimo" },
   { "text": "Innovación y tecnología financiera son las bases para una gestión eficiente y rentable en la era digital.", "author": "Anónimo" }
 ];
+
 
 const Login = () => {
   const theme = useTheme();
@@ -69,17 +69,35 @@ const Login = () => {
     e.preventDefault();
     console.log("Email:", email, "Password:", password);
 
-    // Llamar a la función de Firebase para iniciar sesión
-    const response = await FBQueries.Login(email, password);
+    try {
+      // 1. Llamar a la función de Firebase para iniciar sesión
+      const response = await FBQueries.Login(email, password);
 
-    if (response.success) {
-      // Si el login es exitoso, redirigir al dashboard
-      console.log("Inicio de sesión exitoso");
-      setSuccess(true); // Puedes manejar la redirección aquí o usando un `useRouter` si usas Next.js
-      window.location.href = "/dashboard"; // Redirige al dashboard
-    } else {
-      // Si ocurre un error, mostrar un mensaje
-      setError(response.message);
+      if (response.success) {
+        const user = response.user;
+        const empresa = await FBQueries.PrintCompanies();
+        // 2. Obtener el rol del usuario desde Firestore
+        const roleResponse = await FBQueries.GetUserRole(response.user.uid);
+
+        if (roleResponse.success) {
+          const userRole = roleResponse.role;
+
+          // 3. Redirigir según el rol
+          if (userRole === "ADMIN") {
+            window.location.href = "/company/dashboard/home"; // Redirigir al dashboard de admin
+          } else if (userRole === "USER") {
+            window.location.href = "/user-dashboard"; // Redirigir al dashboard de usuario
+          } else {
+            window.location.href = "/dashboard"; // Redirigir a un dashboard por defecto
+          }
+        } else {
+          setError(roleResponse.message);
+        }
+      } else {
+        setError(response.message);
+      }
+    } catch (error) {
+      setError("Ocurrió un error al iniciar sesión.");
     }
   };
 
