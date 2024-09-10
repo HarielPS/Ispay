@@ -148,7 +148,7 @@ export default function CompanySignup({ companyInformation, setCompanyInformatio
                 value={companyInformation.ID_company_tax}
                 onChange={(e) => {
                   handleChange("ID_company_tax", e.target.value);
-                  console.log("Company Tax ID: ", e.target.value); // Agrega este log para verificar si el valor está siendo capturado
+                  // console.log("Company Tax ID: ", e.target.value); // Agrega este log para verificar si el valor está siendo capturado
                 }}
               />
               {errors.ID_company_tax && (

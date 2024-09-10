@@ -42,9 +42,9 @@ export default function UserSafetyInfo({ userSafetyInfo, setUserSafetyInfo, user
       life: 3000,
     });
   };
-  useEffect(() => {
-    console.log(userSafetyInfo);
-  }, [userSafetyInfo]);
+  // useEffect(() => {
+  //   console.log(userSafetyInfo);
+  // }, [userSafetyInfo]);
 
   const handleChange = (field, value) => {
     setUserSafetyInfo((prevState) => ({

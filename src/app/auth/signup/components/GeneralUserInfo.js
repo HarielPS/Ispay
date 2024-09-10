@@ -32,7 +32,7 @@ export default function GeneralUserInfo({
   };
 
   useEffect(() => {
-    console.log(generalUserInformation);
+    // console.log(generalUserInformation);
   }, [generalUserInformation]);
 
   const hadleChangeSelectAdmin = (value) => {
