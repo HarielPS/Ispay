@@ -119,16 +119,16 @@ export default function Page() {
     setLoading(true);
   
     if (validateFields()) {
-      console.log("Company Information: ", companyInformation); // Agrega este log para verificar los datos
+      console.log("Company Information: ", companyInformation); // Verificar los datos de la empresa
       try {
         const signupResult = await FBQueries.SignupCompany(
           companyInformation,  // Datos de la empresa
-          userSafetyInfo, //datos de usuario
+          userSafetyInfo, // Datos de usuario
           generalUserInformation,  // Datos del usuario
           companyImageFile,  // Imagen de la empresa
           userImageFile  // Imagen del usuario
         );
-    
+  
         if (signupResult.success) {
           toast.current.show({
             severity: "success",
@@ -136,9 +136,10 @@ export default function Page() {
             detail: signupResult.message,
             life: 2000,
           });
-        setTimeout(() => {
-          router.replace("/company/dashboard/home");
-        }, 2000);
+          // Redirección opcional:
+          // setTimeout(() => {
+          //   router.replace("/company/dashboard/home");
+          // }, 2000);
         }
       } catch (error) {
         console.error("Error al registrar:", error);
@@ -161,6 +162,7 @@ export default function Page() {
       });
     }
   };
+  
   
   // const handleSubmit = async () => {
   //   setLoading(true);

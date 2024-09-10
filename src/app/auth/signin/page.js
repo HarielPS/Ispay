@@ -75,7 +75,8 @@ const Login = () => {
 
       if (response.success) {
         const user = response.user;
-        const empresa = await FBQueries.PrintCompanies();
+        const empresa = await FBQueries.GetSpecificCompany("Lego");
+
         // 2. Obtener el rol del usuario desde Firestore
         const roleResponse = await FBQueries.GetUserRole(response.user.uid);
 

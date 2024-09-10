@@ -4,16 +4,38 @@ import { db, auth } from "./Firebase";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 export const FBQueries = {};
+// FBQueries.GetUserRole = async (uid) => {
 
-const cleanDocID = (docID) => {
-  return docID.trim().replace(/\s+/g, '_'); // Eliminar espacios al principio y final, y reemplazar los espacios intermedios por "_"
+FBQueries.cleanDocID = (docID) => {
+  return docID
+    .normalize('NFD')  // Normalizar caracteres
+    .replace(/[\u0300-\u036f]/g, '')  // Eliminar diacríticos
+    .trim()  // Quitar espacios al inicio y final
+    .replace(/\s+/g, '_');  // Reemplazar espacios con guiones bajos
+},
+FBQueries.cleanDocID1 = (docID) => {
+  return docID
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .replace(/\s+/g, '_');
+}
+
+const printAsciiCodes = (docID) => {
+  for (let i = 0; i < docID.length; i++) {
+    console.log(`Char: ${docID[i]}, ASCII: ${docID.charCodeAt(i)}`);
+  }
 };
 
 FBQueries.SignupCompany = async (companyData, userSafetyInfo, userData, companyImageFile, userImageFile) => {
 
-  let docID = cleanDocID(companyData.ID_company_tax);
+  // Si no se especifica un ID de documento, generar uno automáticamente
+  let docID = FBQueries.cleanDocID(companyData.ID_company_tax) || "Empresa_Test_123";
+  
+  console.log("ID de la empresa después de limpiar:", docID);
+  printAsciiCodes(docID);
+  console.log("Valor original de ID_company_tax:", companyData.ID_company_tax);
 
-  // Verifica que el ID de la empresa esté definido
   if (!docID) {
     console.error("Error: docID es indefinido. Verifica que companyData.ID_company_tax esté definido.");
     throw new Error("El ID de la empresa (ID_company_tax) es obligatorio.");
@@ -29,9 +51,9 @@ FBQueries.SignupCompany = async (companyData, userSafetyInfo, userData, companyI
     if (companyImageFile) {
       console.log("Subiendo imagen de la empresa...");
       const companyImageRef = ref(storage, `EMPRESAS/${docID}/EMPRESA/${companyData.company_name}/company_image.jpg`);
-      await uploadBytes(companyImageRef, companyImageFile);  // Subir el archivo de imagen
-      companyImageUrl = await getDownloadURL(companyImageRef);  // Obtener la URL de descarga
-      companyData.company_image = companyImageUrl;  // Actualizar la URL de la imagen en los datos de la empresa
+      await uploadBytes(companyImageRef, companyImageFile);
+      companyImageUrl = await getDownloadURL(companyImageRef);
+      companyData.company_image = companyImageUrl;
       console.log("Imagen de la empresa subida correctamente:", companyImageUrl);
     }
 
@@ -39,9 +61,9 @@ FBQueries.SignupCompany = async (companyData, userSafetyInfo, userData, companyI
     if (userImageFile) {
       console.log("Subiendo imagen del usuario...");
       const userImageRef = ref(storage, `EMPRESAS/${docID}/USUARIO/${userData.ID_user}/profile_image.jpg`);
-      await uploadBytes(userImageRef, userImageFile);  // Subir el archivo de imagen
-      userImageUrl = await getDownloadURL(userImageRef);  // Obtener la URL de descarga
-      userData.image = userImageUrl;  // Actualizar la URL de la imagen en los datos del usuario
+      await uploadBytes(userImageRef, userImageFile);
+      userImageUrl = await getDownloadURL(userImageRef);
+      userData.image = userImageUrl;
       console.log("Imagen del usuario subida correctamente:", userImageUrl);
     }
 
@@ -51,29 +73,27 @@ FBQueries.SignupCompany = async (companyData, userSafetyInfo, userData, companyI
     const user = userCredential.user;
     console.log("Usuario registrado en Firebase Authentication:", user.uid);
 
-    // Limpiar el campo password_validation de los datos de seguridad del usuario
+    // Limpiar campos sensibles
     const { password_validation, password, ...cleanedUserSafetyInfo } = userSafetyInfo;
-
-    // Remover el campo company_image de los datos del usuario si existe
     const { company_image, ...cleanedUserData } = userData;
 
-    // Combinar los datos del usuario con la información de seguridad, y guardar el UID del usuario
+    // Combinar los datos del usuario con la información de seguridad
     const combinedUserData = {
       ...cleanedUserData,
       ...cleanedUserSafetyInfo,
       uid: user.uid,
     };
 
-    console.log("Guardando datos del usuario en Firestore...");
     // Guardar los datos del usuario en Firestore usando el UID como ID del documento
+    console.log("Guardando datos del usuario en Firestore...");
     const userDocRef = doc(db, "EMPRESAS", docID, "USUARIO", user.uid);
     await setDoc(userDocRef, combinedUserData);
     console.log("Datos del usuario guardados correctamente en Firestore.");
 
+    // Guardar los datos de la empresa en Firestore
     console.log("Guardando datos de la empresa en Firestore...");
-    // Guardar los datos de la empresa
-    const empresaCollectionRef = collection(db, "EMPRESAS", docID, "EMPRESA");
-    await addDoc(empresaCollectionRef, companyData);
+    const empresaCollectionRef = doc(db, "EMPRESAS", docID);  // Almacenar la empresa en la colección
+    await setDoc(empresaCollectionRef, companyData);
     console.log("Datos de la empresa guardados correctamente en Firestore.");
 
     return {
@@ -88,6 +108,7 @@ FBQueries.SignupCompany = async (companyData, userSafetyInfo, userData, companyI
     };
   }
 };
+
 
 // Función para obtener el rol del usuario en Firestore
 FBQueries.GetUserRole = async (uid) => {
@@ -148,21 +169,41 @@ FBQueries.Login = async (email, password) => {
   }
 };
 
-FBQueries.PrintCompanies = async () => {
+FBQueries.ListCompaniesWithErrorHandling = async () => {
   try {
-    const companiesCollectionRef = collection(db, "EMPRESAS"); // Referencia a la colección EMPRESAS
-    const companiesSnapshot = await getDocs(companiesCollectionRef); // Obtener los documentos de la colección
+    const companiesCollectionRef = collection(db, "EMPRESAS");
+    const companiesSnapshot = await getDocs(companiesCollectionRef);
 
     if (companiesSnapshot.empty) {
       console.log("No se encontraron empresas.");
       return;
     }
 
-    // Recorrer cada documento en la colección y mostrar sus datos
+    // Recorrer cada documento en la colección y manejar potenciales errores en la obtención
     companiesSnapshot.forEach((doc) => {
-      console.log(`Empresa ID: ${doc.id}`, doc.data()); // Imprime el ID del documento y los datos
+      try {
+        console.log(`Empresa ID: ${doc.id}`, doc.data());
+      } catch (error) {
+        console.error(`Error al obtener datos de la empresa ${doc.id}:`, error.message);
+      }
     });
   } catch (error) {
     console.error("Error al obtener las empresas:", error.message);
+  }
+};
+
+FBQueries.GetSpecificCompany = async (companyID) => {
+  try {
+    const companyRef = doc(db, "EMPRESAS", companyID); // Referencia directa al documento "Lego"
+    const companyDoc = await getDoc(companyRef);
+
+    if (companyDoc.exists()) {
+      console.log(`Empresa encontrada con ID ${companyID}:`, companyDoc.data());
+      return companyDoc.data();
+    } else {
+      console.log(`No se encontró una empresa con el ID ${companyID}`);
+    }
+  } catch (error) {
+    console.error("Error al obtener la empresa:", error.message);
   }
 };

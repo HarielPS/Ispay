@@ -133,30 +133,29 @@ export default function CompanySignup({ companyInformation, setCompanyInformatio
             </Grid>
 
             {/* Company Tax ID */}
-            <Grid item xs={12} sm={6}>
-              <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 'bold' }}>
-                Company Tax ID
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 'bold' }}>
+              Company Tax ID
+            </Typography>
+            <InputText
+              placeholder="Company Tax ID"
+              className="w-full"
+              style={{
+                backgroundColor: getColor(theme, "background"),
+                color: getColor(theme, "text"),
+                width: "100%",
+              }}
+              value={companyInformation.ID_company_tax}
+              onChange={(e) => {
+                handleChange("ID_company_tax", e.target.value);
+              }}
+            />
+            {errors.ID_company_tax && (
+              <Typography variant="caption" color="error" display="block" sx={{ mt: 1 }}>
+                {errors.ID_company_tax}
               </Typography>
-              <InputText
-                placeholder="Company Tax ID"
-                className="w-full"
-                style={{
-                  backgroundColor: getColor(theme, "background"),
-                  color: getColor(theme, "text"),
-                  width: "100%",
-                }}
-                value={companyInformation.ID_company_tax}
-                onChange={(e) => {
-                  handleChange("ID_company_tax", e.target.value);
-                  // console.log("Company Tax ID: ", e.target.value); // Agrega este log para verificar si el valor está siendo capturado
-                }}
-              />
-              {errors.ID_company_tax && (
-                <Typography variant="caption" color="error" display="block" sx={{ mt: 1 }}>
-                  {errors.ID_company_tax}
-                </Typography>
-              )}
-            </Grid>
+            )}
+          </Grid>
 
             {/* Company Name */}
             <Grid item xs={12} sm={6}>
