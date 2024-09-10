@@ -109,6 +109,7 @@ export default function RootLayout({ children }) {
                 // backgroundColor: theme.palette.background.paper,
                 // minHeight: 'calc(100vh - 80px)',
                 color: theme.palette.text.primary,
+                background:'blue'
             }}>
               {children}
             </Box>

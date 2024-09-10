@@ -138,7 +138,7 @@ export default function Navbar({ toggleTheme }) {
             <Button variant="contained" color="primary" onClick={() => router.push("/auth/signup")}>
               Registro
             </Button>
-            <Button variant="outlined" color="secondary" onClick={() => router.push("/auth/login")}>
+            <Button variant="outlined" color="secondary" onClick={() => router.push("/auth/signin")}>
               Iniciar Sesión
             </Button>
             <ThemeToggle toggleTheme={toggleTheme} />

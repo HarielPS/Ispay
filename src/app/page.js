@@ -11,10 +11,13 @@ import { WidthFull } from "@mui/icons-material";
 import Info from "./landing/components/info";
 import Footer from "./landing/components/Footer";
 import FQA from "./landing/components/FQA";
+import getColor from '@/themes/colorUtils';
+import { useTheme } from '@mui/material';
 
 export default function Home() {
+  const theme = useTheme();
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={{ width: '100%', background:getColor(theme,'background')}}>
       <Box id="hero-section">
         <Hero />
       </Box>

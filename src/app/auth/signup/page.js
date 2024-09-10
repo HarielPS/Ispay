@@ -1,38 +1,28 @@
 "use client";
 import React, { useState, useRef } from "react";
-import { Button } from "primereact/button";
-import { Card } from "primereact/card";
-import { ScrollPanel } from "primereact/scrollpanel";
-import { Stepper } from "primereact/stepper";
-import { StepperPanel } from "primereact/stepperpanel";
+import { Box, Button, Stepper, Step, StepLabel, Typography } from "@mui/material";
 import { Toast } from "primereact/toast";
-
-import "primeflex/primeflex.css";
-import "primereact/resources/primereact.css";
-import "primereact/resources/themes/lara-light-indigo/theme.css";
 import CompanySignup from "./components/CompanySignup";
 import GeneralUserInfo from "./components/GeneralUserInfo";
 import UserSafetyInfo from "./components/UserSafetyInfo";
 import Company from "@/services/Firebase/models/Company";
 import User from "@/services/Firebase/models/User";
-import { SplitButton } from "primereact/splitbutton";
-
 import { useRouter } from "next/navigation";
-import { useLocalStorage } from "primereact/hooks";
+import getColor from "@/themes/colorUtils";
+import { useTheme } from "@mui/material";
+import { FBQueries } from "@/services/Firebase/Firebase.queries";
 
-export default function page() {
+export default function Page() {
+  const theme = useTheme();
   const router = useRouter();
   const toast = useRef(null);
-  const stepperRef = useRef(null);
   const [loading, setLoading] = useState(false);
-  const [dataCompanyLocalS, setDataCompanyLocalS] = useLocalStorage(
-    null,
-    "dataCompany"
-  );
-  const [dataAdminLocalS, setDataAdminLocalS] = useLocalStorage(
-    null,
-    "dataAdmin"
-  );
+  const [activeStep, setActiveStep] = useState(0); // MUI Stepper control
+  // Aquí se almacenan los archivos para subir
+  const [companyImageFile, setCompanyImageFile] = useState(null);
+  const [userImageFile, setUserImageFile] = useState(null);
+
+  // Information for company and user, including profileImg here
   const [companyInformation, setCompanyInformation] = useState({
     ID_company_tax: "",
     company_name: "",
@@ -45,7 +35,9 @@ export default function page() {
     number_employees: "",
     company_role: [],
     company_description: "",
+    company_image: "",
   });
+
   const [generalUserInformation, setGeneralUserInformation] = useState({
     ID_user: "",
     name: "",
@@ -55,6 +47,7 @@ export default function page() {
     role: "ADMIN",
     ADMIN: true,
   });
+
   const [userSafetyInfo, setUserSafetyInfo] = useState({
     image: "",
     password: "",
@@ -63,163 +56,212 @@ export default function page() {
     work_location: "",
   });
 
-  const validateFields = (fields) => {
-    for (const key in fields) {
-      if (typeof fields[key] === "object" && fields[key] !== null) {
-        // Si es un objeto, validamos sus propiedades
-        if (!validateFields(fields[key])) return false;
-      } else if (Array.isArray(fields[key])) {
-        // Si es un array, validamos que no esté vacío
-        if (fields[key].length === 0) return false;
-      } else {
-        // Validamos que los campos no estén vacíos
-        if (!fields[key]) return false;
-      }
-    }
-    return true;
-  };
+  const [errors, setErrors] = useState({
+    company_name: "",
+    ID_company_tax: "",
+    website: "",
+    legal_company_name: "",
+    number_employees: "",
+  });
 
-  const handleNextView = (data) => {
-    if (validateFields(data) | 1) {
-      stepperRef.current.nextCallback();
+  // Form validation function
+  const validateFields = () => {
+    let valid = true;
+    let newErrors = { ...errors };
+  
+    if (!companyInformation.company_name) {
+      newErrors.company_name = "El nombre de la empresa es obligatorio.";
+      valid = false;
+    } else {
+      newErrors.company_name = "";
+    }
+  
+    if (!companyInformation.ID_company_tax) {
+      newErrors.ID_company_tax = "El ID de la empresa es obligatorio.";
+      valid = false;
+    } else {
+      newErrors.ID_company_tax = "";
+    }
+  
+    if (!companyInformation.website || !/^https?:\/\/[^\s$.?#].[^\s]*$/.test(companyInformation.website)) {
+      newErrors.website = "Introduce una URL válida (comienza con http:// o https://).";
+      valid = false;
+    } else {
+      newErrors.website = "";
+    }
+  
+    if (!companyInformation.legal_company_name) {
+      newErrors.legal_company_name = "El nombre legal de la empresa es obligatorio.";
+      valid = false;
+    } else {
+      newErrors.legal_company_name = "";
+    }
+  
+    setErrors(newErrors);
+    return valid;
+  };
+  
+
+  const handleNext = () => {
+    if (validateFields()) {
+      setActiveStep((prevStep) => prevStep + 1);
     } else {
       toast.current.show({
         severity: "error",
         summary: "Error",
-        detail: "You must complete all the fields",
+        detail: "Por favor, completa todos los campos obligatorios.",
         life: 3000,
       });
     }
   };
 
-  const handleSubmit = async (data) => {
+  const handleSubmit = async () => {
     setLoading(true);
-    if (validateFields(data)) {
-      const company = new Company(companyInformation);
-      const user = new User(generalUserInformation, userSafetyInfo);
-      console.log(user.toFirebase());
-
-      const signupSuccess = await company.signup(user.toFirebase(), "");
-      if (signupSuccess) {
-        setLoading(false);
-        toast.current.show([
-          {
-            severity: "info",
-            summary: "Info",
-            detail: "You're being redirected",
-            life: 2000,
-          },
-          {
+  
+    if (validateFields()) {
+      console.log("Company Information: ", companyInformation); // Verificar los datos de la empresa
+      try {
+        const signupResult = await FBQueries.SignupCompany(
+          companyInformation,  // Datos de la empresa
+          userSafetyInfo, // Datos de usuario
+          generalUserInformation,  // Datos del usuario
+          companyImageFile,  // Imagen de la empresa
+          userImageFile  // Imagen del usuario
+        );
+  
+        if (signupResult.success) {
+          toast.current.show({
             severity: "success",
-            summary: "Success",
-            detail: "Company and user registered successfully",
+            summary: "Éxito",
+            detail: signupResult.message,
             life: 2000,
-          },
-        ]);
-        setDataCompanyLocalS(company.toJSON());
-        setDataAdminLocalS(user.toFirebase());
-
-        const checkDataSaved = setInterval(() => {
-          const savedCompany = dataCompanyLocalS; // función que recupera los datos guardados
-          const savedAdmin = dataAdminLocalS; // función que recupera los datos guardados
-          // Si ambos datos están presentes, procede con la redirección
-          if (savedCompany && savedAdmin) {
-            clearInterval(checkDataSaved); // Detenemos la verificación
-            // Espera 2 segundos antes de redirigir
-            setTimeout(() => {
-              router.replace("/company/dashboard/home");
-            }, 2000); // Retraso de 2 segundos
-          }
-        }, 500); // Comprueba cada 500ms
+          });
+          router.replace("/company/dashboard/home");
+          // setTimeout(() => {
+          //   router.replace("/company/dashboard/home");
+          // }, 2000);
+        }
+      } catch (error) {
+        console.error("Error al registrar:", error);
+        toast.current.show({
+          severity: "error",
+          summary: "Error",
+          detail: "Error al registrar la empresa o el usuario.",
+          life: 3000,
+        });
+      } finally {
+        setLoading(false);
       }
     } else {
+      setLoading(false);
       toast.current.show({
         severity: "error",
         summary: "Error",
-        detail: "You must complete all the fields",
+        detail: "Por favor, completa todos los campos obligatorios.",
         life: 3000,
       });
     }
   };
+  
+  
+  // const handleSubmit = async () => {
+  //   setLoading(true);
+  //   if (validateFields()) {
+  //     const company = new Company(companyInformation);
+  //     const user = new User(generalUserInformation, userSafetyInfo);
+
+  //     const signupSuccess = await company.signup(user.toFirebase(), "");
+  //     if (signupSuccess) {
+  //       setLoading(false);
+  //       toast.current.show({
+  //         severity: "success",
+  //         summary: "Success",
+  //         detail: "Company and user registered successfully",
+  //         life: 2000,
+  //       });
+  //       setTimeout(() => {
+  //         router.replace("/company/dashboard/home");
+  //       }, 2000);
+  //     }
+  //   } else {
+  //     setLoading(false);
+  //     setLoading(false);
+  //     toast.current.show({
+  //       severity: "error",
+  //       summary: "Error",
+  //       detail: "Please complete all required fields.",
+  //       life: 3000,
+  //     });
+  //   }
+  // };
 
   return (
-    <div className="card">
+    <Box sx={{ backgroundColor: getColor(theme, "background"), color: getColor(theme, "text"), minHeight: "100vh", padding: 3 }}>
       <Toast ref={toast} />
-      <Stepper ref={stepperRef} style={{ flexBasis: "50rem" }} linear>
-        <StepperPanel header="Company information">
-          <div className="flex flex-column h-12rem">
-            <div className="border-2 border-dashed surface-border border-round surface-ground flex-auto flex justify-content-center align-items-center font-medium">
-              <ScrollPanel style={{ width: "100%", height: "60vh" }}>
-                <CompanySignup
-                  companyInformation={companyInformation}
-                  setCompanyInformation={setCompanyInformation}
-                />
-              </ScrollPanel>
-            </div>
-            <div className="flex pt-4 justify-content-end">
-              <Button
-                label="Next"
-                icon="pi pi-arrow-right"
-                iconPos="right"
-                onClick={() => handleNextView(companyInformation)}
-              />
-            </div>
-          </div>
-        </StepperPanel>
-        <StepperPanel header="General user information">
-          <div className="flex flex-column h-12rem">
-            <div className="border-2 border-dashed surface-border border-round surface-ground flex-auto flex justify-content-center align-items-center font-medium">
-              <ScrollPanel style={{ width: "100%", height: "60vh" }}>
-                <GeneralUserInfo
-                  generalUserInformation={generalUserInformation}
-                  setGeneralUserInformation={setGeneralUserInformation}
-                />
-              </ScrollPanel>
-            </div>
-            <div className="flex pt-4 justify-content-between">
-              <Button
-                label="Back"
-                severity="secondary"
-                icon="pi pi-arrow-left"
-                onClick={() => stepperRef.current.prevCallback()}
-              />
-              <Button
-                label="Next"
-                icon="pi pi-arrow-right"
-                iconPos="right"
-                onClick={() => handleNextView(generalUserInformation)}
-              />
-            </div>
-          </div>
-        </StepperPanel>
-        <StepperPanel header="Security Questions">
-          <div className="flex flex-column h-12rem">
-            <div className="border-2 border-dashed surface-border border-round surface-ground flex-auto flex justify-content-center align-items-center font-medium">
-              <ScrollPanel style={{ width: "100%", height: "60vh" }}>
-                <UserSafetyInfo
-                  userSafetyInfo={userSafetyInfo}
-                  setUserSafetyInfo={setUserSafetyInfo}
-                />
-              </ScrollPanel>
-            </div>
-            <div className="flex pt-4 justify-content-between">
-              <Button
-                label="Back"
-                severity="secondary"
-                icon="pi pi-arrow-left"
-                onClick={() => stepperRef.current.prevCallback()}
-              />
-              <Button
-                label="Sign up"
-                icon="pi pi-check"
-                iconPos="right"
-                onClick={() => handleSubmit(userSafetyInfo)}
-                loading={loading}
-              />
-            </div>
-          </div>
-        </StepperPanel>
+
+      <Stepper activeStep={activeStep} alternativeLabel sx={{ backgroundColor: getColor(theme, "background") }}>
+        {["Company Information", "General User Information", "Security Questions"].map((label, index) => (
+          <Step key={index}>
+            <StepLabel>{label}</StepLabel>
+          </Step>
+        ))}
       </Stepper>
-    </div>
+
+      <Box sx={{ mt: 2 }}>
+        {activeStep === 0 && (
+          <CompanySignup 
+          companyInformation={companyInformation} 
+          setCompanyInformation={setCompanyInformation}
+          companyImageFile={companyImageFile}  
+          setCompanyImageFile={setCompanyImageFile} 
+          errors={errors}
+          setErrors={setErrors}
+          />
+        )}
+        {activeStep === 1 && (
+          <GeneralUserInfo 
+            generalUserInformation={generalUserInformation} 
+            setGeneralUserInformation={setGeneralUserInformation} 
+          />
+        )}
+        {activeStep === 2 && (
+          <UserSafetyInfo 
+          userSafetyInfo={userSafetyInfo}
+          setUserSafetyInfo={setUserSafetyInfo}
+          userImageFile={userImageFile}  
+          setUserImageFile={setUserImageFile}  
+          />
+        )}
+      </Box>
+
+      <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+        <Button 
+          onClick={() => setActiveStep((prevStep) => prevStep - 1)} 
+          disabled={activeStep === 0} 
+          variant="contained"
+          sx={{ backgroundColor: theme.palette.primary.main, color: "white" }}
+        >
+          Back
+        </Button>
+        {activeStep === 2 ? (
+          <Button 
+            onClick={handleSubmit} 
+            variant="contained"
+            sx={{ backgroundColor: theme.palette.success.main, color: "white" }}
+            disabled={loading}
+          >
+            {loading ? "Submitting..." : "Finish"}
+          </Button>
+        ) : (
+          <Button 
+            onClick={handleNext} 
+            variant="contained"
+            sx={{ backgroundColor: theme.palette.primary.main, color: "white" }}
+          >
+            Next
+          </Button>
+        )}
+      </Box>
+    </Box>
   );
 }

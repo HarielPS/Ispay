@@ -28,57 +28,16 @@ export const company = [
     route: 'newAccount',
   },
   {
-    label: "new account",
+    label: "History",
     icon: "pi pi-home",
     route: '/',
   },
   {
-    label: "Projects",
+    label: "Deposit money",
     icon: "pi pi-search",
-    items: [
-      {
-        label: "Core",
-        icon: "pi pi-bolt",
-        shortcut: "⌘+S",
-        template: itemRenderer,
-      },
-      {
-        label: "Blocks",
-        icon: "pi pi-server",
-        shortcut: "⌘+B",
-        template: itemRenderer,
-      },
-      {
-        label: "UI Kit",
-        icon: "pi pi-pencil",
-        shortcut: "⌘+U",
-        template: itemRenderer,
-      },
-      {
-        separator: true,
-      },
-      {
-        label: "Templates",
-        icon: "pi pi-palette",
-        items: [
-          {
-            label: "Apollo",
-            icon: "pi pi-palette",
-            badge: 2,
-            template: itemRenderer,
-          },
-          {
-            label: "Ultima",
-            icon: "pi pi-palette",
-            badge: 3,
-            template: itemRenderer,
-          },
-        ],
-      },
-    ],
   },
   {
-    label: "Contact",
+    label: "withdraw money",
     icon: "pi pi-envelope",
     badge: 3,
     template: itemRenderer,

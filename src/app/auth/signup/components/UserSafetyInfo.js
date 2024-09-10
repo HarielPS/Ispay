@@ -18,9 +18,14 @@ import { countries } from "../helpers/list.countries";
 import { ChevronDownIcon } from "primereact/icons/chevrondown";
 import { ChevronRightIcon } from "primereact/icons/chevronright";
 import { Password } from "primereact/password";
+import {Paper, Typography, Avatar} from "@mui/material";
+import { useTheme } from "@mui/material";
+import getColor from "@/themes/colorUtils";
 
-export default function UserSafetyInfo({ userSafetyInfo, setUserSafetyInfo }) {
+export default function UserSafetyInfo({ userSafetyInfo, setUserSafetyInfo, userImageFile, setUserImageFile }) {
+  const theme = useTheme();
   const toast = useRef(null);
+
   const groupedItemTemplate = (option) => {
     return (
       <div className="flex align-items-center">
@@ -37,9 +42,9 @@ export default function UserSafetyInfo({ userSafetyInfo, setUserSafetyInfo }) {
       life: 3000,
     });
   };
-  useEffect(() => {
-    console.log(userSafetyInfo);
-  }, [userSafetyInfo]);
+  // useEffect(() => {
+  //   console.log(userSafetyInfo);
+  // }, [userSafetyInfo]);
 
   const handleChange = (field, value) => {
     setUserSafetyInfo((prevState) => ({
@@ -92,30 +97,97 @@ export default function UserSafetyInfo({ userSafetyInfo, setUserSafetyInfo }) {
       </div>
     );
   };
+  // imagen de perfil
+  const [profileImg, setProfileImg] = useState('');
+
+  const handleUserImgChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setUserImageFile(file);  // Aquí actualizamos el estado en el componente padre
+
+      // Vista previa en base64
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setUserSafetyInfo((prevState) => ({
+          ...prevState,
+          image: reader.result,  // Aquí solo para la vista previa
+        }));
+      };
+      reader.readAsDataURL(file);  // Leer el archivo como base64 para la vista previa
+    }
+  };
+
   return (
-    <>
-      <Toast ref={toast} />
-      <Card title="Security Questions" style={{ minHeight: "60vh" }}>
-        <Box sx={{ width: "100%", height: "100%" }}>
-          <Grid
-            container
-            rowSpacing={2}
-            columnSpacing={{ xs: 1, sm: 2, md: 3 }}
-          >
-            <Grid size={12}>
-              <div className="flex-auto">
-                <label htmlFor="Profile image" className="font-bold block mb-2">
-                  Profile image
-                </label>
-                <InputText
-                  placeholder="Profile image"
-                  className="w-full"
-                  value={userSafetyInfo.image}
-                  onChange={(e) => handleChange("image", e.target.value)}
-                />
-              </div>
-            </Grid>
-            <Grid size={4}>
+<>
+  <Toast ref={toast} />
+  <Card title="Security Questions" style={{ minHeight: "60vh", textAlign: "center",background:getColor(theme,'background'),color:getColor(theme,'text') }}>
+    <Box sx={{ width: "100%", height: "100%" }}>
+      <Grid
+        container
+        rowSpacing={2}
+        columnSpacing={{ xs: 1, sm: 2, md: 3 }}
+        justifyContent="center"
+        alignItems="center"    
+        direction="column"   
+        // sx={{background:'green'}}
+      >
+    {/* Imagen de perfil */}
+    <Grid item xs={12} sx={{ width:'100%', background:getColor(theme,'background')}}>
+      <Paper sx={{ p: 2, width: '100%',background:getColor(theme,'background') }}>
+        <Typography variant="subtitle1" gutterBottom align="center">
+          Cambia tu foto de perfil desde aquí
+        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
+          <Avatar
+            src={userSafetyInfo.image}
+            sx={{ width: 80, height: 80 }}
+          />
+        </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
+        <Button
+          variant="contained"
+          component="label"
+          color="primary"
+          style={{ backgroundColor: getColor(theme, 'primary') }}
+        >
+          Subir Imagen
+          <input
+          type="file"
+          accept="image/*"
+          onChange={handleUserImgChange}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            opacity: 0,
+            cursor: "pointer",
+          }}
+        />
+        </Button>
+
+        <Button
+          variant="outlined"
+          color="secondary"
+          sx={{ borderColor: getColor(theme, 'secondary'), padding: '10px 20px', fontSize: '14px' }}
+          onClick={() => handleChange("image", "")}
+        >
+          Resetear
+        </Button>
+      </Box>
+
+
+        <Typography variant="caption" display="block" sx={{ mt: 2 }} align="center">
+          Permitidos JPG, GIF o PNG. Tamaño máximo de 800K
+        </Typography>
+      </Paper>
+    </Grid>
+
+        {/* Inputs distribuidos debajo de la imagen */}
+        <Grid item xs={12} sx={{width:'100%'}}>
+          <Grid container spacing={2} justifyContent="center">
+            <Grid item xs={12} sm={6}>
               <div className="flex-auto">
                 <label htmlFor="Work location" className="font-bold block mb-2">
                   Work location
@@ -130,18 +202,11 @@ export default function UserSafetyInfo({ userSafetyInfo, setUserSafetyInfo }) {
                   valueTemplate={selectedCountryTemplate}
                   itemTemplate={countryOptionTemplate}
                   className="w-full"
-                  panelFooterTemplate={panelFooterTemplate}
-                  dropdownIcon={(opts) => {
-                    return opts.iconProps["data-pr-overlay-visible"] ? (
-                      <ChevronRightIcon {...opts.iconProps} />
-                    ) : (
-                      <ChevronDownIcon {...opts.iconProps} />
-                    );
-                  }}
                 />
               </div>
             </Grid>
-            <Grid size={4}>
+
+            <Grid item xs={12} sm={6}>
               <div className="flex-auto">
                 <label htmlFor="Phone number" className="font-bold block mb-2">
                   Phone number
@@ -155,7 +220,8 @@ export default function UserSafetyInfo({ userSafetyInfo, setUserSafetyInfo }) {
                 />
               </div>
             </Grid>
-            <Grid size={4}>
+
+            <Grid item xs={12} sm={6}>
               <div className="flex-auto">
                 <label htmlFor="Password" className="font-bold block mb-2">
                   Password
@@ -168,9 +234,10 @@ export default function UserSafetyInfo({ userSafetyInfo, setUserSafetyInfo }) {
                 />
               </div>
             </Grid>
-            <Grid size={4}>
+
+            <Grid item xs={12} sm={6}>
               <div className="flex-auto">
-                <label htmlFor="Password" className="font-bold block mb-2">
+                <label htmlFor="Confirm password" className="font-bold block mb-2">
                   Confirm password
                 </label>
                 <Password
@@ -182,8 +249,11 @@ export default function UserSafetyInfo({ userSafetyInfo, setUserSafetyInfo }) {
               </div>
             </Grid>
           </Grid>
-        </Box>
-      </Card>
-    </>
+        </Grid>
+      </Grid>
+    </Box>
+  </Card>
+</>
+
   );
 }
