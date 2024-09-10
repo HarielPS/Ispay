@@ -136,7 +136,7 @@ export default function Page() {
             detail: signupResult.message,
             life: 2000,
           });
-          // Redirección opcional:
+          router.replace("/company/dashboard/home");
           // setTimeout(() => {
           //   router.replace("/company/dashboard/home");
           // }, 2000);
