@@ -1,5 +1,5 @@
 import Wallet from "@/lib/wallet/Wallet.lib";
-import { doc, setDoc, collection, addDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 import { db } from "../Firebase";
 
 export default class EmployeeAccount {
@@ -12,7 +12,7 @@ export default class EmployeeAccount {
     this.name = EmployeeInformation.name;
     this.surname = EmployeeInformation.surname;
     this.last_signin = EmployeeInformation.last_signin || null;
-    this.last_movement = EmployeeInformation.last_movement || null; //Aqui meter otra coleccion
+    this.last_movement = EmployeeInformation.last_movement || null;
     this.last_faucet = EmployeeInformation.last_faucet || null;
     this.image = EmployeeInformation.image || "";
     this.wallet = new Wallet(
@@ -22,7 +22,6 @@ export default class EmployeeAccount {
     );
     this.work_location = EmployeeInformation.work_location || null;
     this.role = EmployeeInformation.role;
-    //Datos relacionados con filtros para su wallet
     this.min_amount_account = EmployeeInformation.min_amount_account;
     this.max_amount_account = EmployeeInformation.max_amount_account;
     this.start_withdraw_account = EmployeeInformation.start_withdraw_account;
@@ -31,6 +30,7 @@ export default class EmployeeAccount {
     this.expense_category_account =
       EmployeeInformation.expense_category_account;
   }
+  
   toJSON() {
     return {
       ID_company_tax: this.ID_company_tax,
@@ -60,21 +60,21 @@ export default class EmployeeAccount {
   }
 
   async FB_createUser() {
-    //Registrara datos del empleado
     const EmployeeAccountData = this.toJSON();
     const docID = EmployeeAccountData.ID_company_tax;
     try {
-      /* const docRef = doc(db, "EMPRESAS", docID);
-      await setDoc(docRef, {}); */
-
-      //Agregamos la coleccion dentro de la empresa
-      const EmployeeAccountRef = collection(
+      console.log("Company tax ID actual:", this.ID_company_tax);  // Cambié esto
+      console.log("EmployeeAccount ID_company_tax: " + this.ID_company_tax);
+      console.log("EmployeeAccount uid: " + this.uid);
+      
+      const EmployeeAccountRef = doc(
         db,
         "EMPRESAS",
-        this.uid,
-        "EmployeeAccount"
+        this.ID_company_tax,
+        "EmployeeAccount",
+        this.uid
       );
-      await addDoc(EmployeeAccountRef, EmployeeAccountData);
+      await setDoc(EmployeeAccountRef, EmployeeAccountData);
       return {
         success: true,
         message: "EmployeeAccount registrado correctamente",

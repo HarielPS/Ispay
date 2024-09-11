@@ -97,7 +97,8 @@ export default function newAccount() {
         return; // Detenemos la ejecución si no hay un userResponse válido
       }
 
-      const uid = userResponse.user.uid; 
+      const uid = userResponse.user.uid;
+      console.log(uid);
       if (!checked) {
         //Verifica si tiene que agregar un usuario admin o uno employee
         //Entonces es un admin, modificar por la logica correcta

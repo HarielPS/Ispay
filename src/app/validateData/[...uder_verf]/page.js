@@ -23,7 +23,9 @@ const storage = getStorage();
 export default function UserSafetyInfo({ params }) {
   
   const router = useRouter();
-  const { uid, ID_company_tax } = router.query;
+  // const { uid, ID_company_tax } = router.query;
+  const [uid, ID_company_tax] = params.uder_verf || [];
+  
   const theme = useTheme();
   const toast = useRef(null);
   
@@ -61,6 +63,10 @@ export default function UserSafetyInfo({ params }) {
       [field]: value,
     }));
   };
+
+  useEffect(()=>{
+    console.log(params);
+  },[params]);
 
   useEffect(() => {
     if (!uid || !ID_company_tax) {
@@ -124,6 +130,8 @@ export default function UserSafetyInfo({ params }) {
     try {
       // Subir la imagen del usuario si está disponible
       let userImageUrl = "";
+      console.log("ID_company_tax: "+ ID_company_tax);
+      console.log("uid: " + uid);
       if (userImageFile) {
         console.log("Subiendo imagen del usuario...");
         const userImageRef = ref(storage, `EMPRESAS/${ID_company_tax}/USUARIO/${uid}/profile_image.jpg`);
@@ -148,6 +156,7 @@ export default function UserSafetyInfo({ params }) {
   
       // Actualizar otros datos en Firestore
       await updateDoc(userRef, {
+        password:userSafetyInfo.password,
         phone_number: userSafetyInfo.phone_number,
         work_location: userSafetyInfo.work_location.name,
         image: userSafetyInfo.image || userImageUrl,  // Usar la URL de Firebase Storage si está disponible

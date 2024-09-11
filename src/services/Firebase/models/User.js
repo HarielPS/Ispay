@@ -59,7 +59,6 @@ export default class User {
       // Enviar correo de verificación con el UID en el enlace
       await sendCustomVerificationEmail(user, uid);
 
-      // await sendMail(user.email, uid, userData.ID_company_tax);
     // 4. Enviar correo de verificación utilizando EmailJS
     await this.sendMail(user.email, uid, userData.ID_company_tax);
 
@@ -82,7 +81,7 @@ export default class User {
     // Datos que enviaremos a la plantilla de EmailJS
     const templateParams = {
       to_name: email,  // destinatario
-      verification_link: `https://ispay.netlify.app/validateData/${uid}?ID_company_tax=${ID_company_tax}`,  // Link de verificación
+      verification_link: `https://ispay.netlify.app/validateData/${uid}/${ID_company_tax}`,  // Link de verificación
     };
 
     try {
