@@ -82,14 +82,29 @@ export default function newAccount() {
         ADMIN: checked,
         ID_company_tax: dataCompany_LocalS.ID_company_tax,
       });
+      const user = new User(createDataAccount);
+      const userResponse = await user.FB_createUser();
+
+      // Verificamos si userResponse existe y si contiene el objeto user
+      if (!userResponse || !userResponse.success || !userResponse.user) {
+        toast.current.show({
+          severity: "error",
+          summary: "Error",
+          detail: "Error al crear la cuenta de usuario.",
+          life: 3000,
+        });
+        setLoading(false);
+        return; // Detenemos la ejecución si no hay un userResponse válido
+      }
+
+      const uid = userResponse.user.uid; 
       if (!checked) {
         //Verifica si tiene que agregar un usuario admin o uno employee
         //Entonces es un admin, modificar por la logica correcta
-        const employeeAccount = new EmployeeAccount(createDataAccount);
+        const employeeAccount = new EmployeeAccount(createDataAccount,uid);
         EAResponse = await employeeAccount.FB_createUser();
       }
-      const user = new User(createDataAccount);
-      const userResponse = await user.FB_createUser(); //Falta agregar metodo a la clase user
+
       if (EAResponse.success && userResponse.success) {
         setLoading(false);
         toast.current.show([
@@ -130,7 +145,7 @@ export default function newAccount() {
     }
   };
   useEffect(() => {
-    console.log(createDataAccount);
+    // console.log(createDataAccount);
   }, [createDataAccount]);
 
   const hadleChangeSelectAdmin = (value) => {

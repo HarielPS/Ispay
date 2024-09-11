@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef,useEffect } from "react";
 import { Card } from "primereact/card";
 import { Box } from "@mui/material";
 import Grid from "@mui/material/Grid2";
@@ -21,8 +21,9 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 const storage = getStorage(); 
 
 export default function UserSafetyInfo({ params }) {
-  const { ID_user, ID_company_tax } = params; 
+  
   const router = useRouter();
+  const { uid, ID_company_tax } = router.query;
   const theme = useTheme();
   const toast = useRef(null);
   
@@ -60,6 +61,21 @@ export default function UserSafetyInfo({ params }) {
       [field]: value,
     }));
   };
+
+  useEffect(() => {
+    if (!uid || !ID_company_tax) {
+      toast.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "No se encontraron los parámetros necesarios en la URL",
+        life: 3000,
+      });
+      setTimeout(() => {
+        router.push("/");  // Redirige después de 3 segundos para dar tiempo de mostrar el mensaje
+      }, 3000);
+    }
+  }, [uid, ID_company_tax]);
+  
 
   const selectedCountryTemplate = (option, props) => {
     if (option) {
@@ -110,7 +126,7 @@ export default function UserSafetyInfo({ params }) {
       let userImageUrl = "";
       if (userImageFile) {
         console.log("Subiendo imagen del usuario...");
-        const userImageRef = ref(storage, `EMPRESAS/${ID_company_tax}/USUARIO/${ID_user}/profile_image.jpg`);
+        const userImageRef = ref(storage, `EMPRESAS/${ID_company_tax}/USUARIO/${uid}/profile_image.jpg`);
         await uploadBytes(userImageRef, userImageFile);  // Subir la imagen al almacenamiento
         userImageUrl = await getDownloadURL(userImageRef);  // Obtener la URL de descarga de la imagen
         userSafetyInfo.image = userImageUrl;  // Actualizar la URL en el objeto userSafetyInfo
@@ -118,7 +134,7 @@ export default function UserSafetyInfo({ params }) {
       }
   
       // Actualizar contraseña en Firebase Authentication
-      const userRef = doc(db, "EMPRESAS", ID_company_tax, "USUARIO", ID_user);  
+      const userRef = doc(db, "EMPRESAS", ID_company_tax, "USUARIO", uid);  
       const userSnapshot = await getDoc(userRef);
       
       if (!userSnapshot.exists()) {

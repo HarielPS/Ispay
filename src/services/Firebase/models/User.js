@@ -56,11 +56,20 @@ export default class User {
       await setDoc(UserRef, userData);
 
       // Enviar correo de verificación con el UID en el enlace
-      await sendCustomVerificationEmail(user, uid);
+      // await sendCustomVerificationEmail(user, uid);
+
+
+
+      // await sendMail(user.email, uid, userData.ID_company_tax);
+          // En lugar de llamar directamente a la función sendMail, hacemos una solicitud fetch a la API Route
+      // Aquí es donde llamamos a la API para enviar el correo
+      await this.sendMail(user.email, uid, userData.ID_company_tax);
+
 
       // 4. Retornar éxito
       return {
         success: true,
+        user,
         message: "Usuario registrado correctamente en Firebase Authentication y Firestore",
       };
     } catch (error) {
@@ -69,6 +78,32 @@ export default class User {
         success: false,
         message: `Error al registrar el usuario: ${error.message}`,
       };
+    }
+  }
+   // Aquí es donde llamamos a la API para enviar el correo
+   async sendMail(email, uid, ID_company_tax) {
+    try {
+      const response = await fetch('/api/sendEmail', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, uid, ID_company_tax }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Error en la respuesta de la API');
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        console.log('Correo enviado con éxito:', data.message);
+      } else {
+        console.error('Error enviando correo:', data.message);
+      }
+    } catch (error) {
+      console.error('Error llamando a la API:', error);
+      throw new Error('Error al llamar a la API de envío de correo.');
     }
   }
 }
@@ -83,4 +118,3 @@ export const generateTemporaryPassword = (length = 12) => {
   }
   return password;
 };
-

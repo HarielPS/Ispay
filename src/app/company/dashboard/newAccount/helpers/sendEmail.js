@@ -3,7 +3,7 @@ import { sendEmailVerification } from "firebase/auth";
 // Función para enviar un correo de verificación personalizado
 export const sendCustomVerificationEmail = async (user, uid) => {
   try {
-    const verificationLink = `https://your-app.com/validateData/${uid}`;
+    const verificationLink = `https://ispay.netlify.app/validateData/${uid}`;
     const emailContent = {
       to: user.email,
       subject: "Verifica tu cuenta",

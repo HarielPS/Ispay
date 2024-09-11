@@ -4,10 +4,11 @@ import { db } from "../Firebase";
 
 export default class EmployeeAccount {
   static methods = {};
-  constructor(EmployeeInformation, wallet = null) {
+  constructor(EmployeeInformation, uid, wallet = null) {
     this.ID_company_tax = EmployeeInformation.ID_company_tax;
     this.ID_FB = EmployeeInformation.ID_FB || "";
     this.ID_user = EmployeeInformation.ID_user;
+    this.uid = uid;
     this.name = EmployeeInformation.name;
     this.surname = EmployeeInformation.surname;
     this.last_signin = EmployeeInformation.last_signin || null;
@@ -35,6 +36,7 @@ export default class EmployeeAccount {
       ID_company_tax: this.ID_company_tax,
       ID_FB: this.ID_FB,
       ID_user: this.ID_user,
+      uid: this.uid,
       name: this.name,
       surname: this.surname,
       last_signin: this.last_signin,
@@ -69,7 +71,7 @@ export default class EmployeeAccount {
       const EmployeeAccountRef = collection(
         db,
         "EMPRESAS",
-        docID,
+        this.uid,
         "EmployeeAccount"
       );
       await addDoc(EmployeeAccountRef, EmployeeAccountData);
