@@ -88,7 +88,7 @@ const Login = () => {
           if (userRole === "true") {
             router.push("/company/dashboard/home"); // Redirigir al dashboard de admin
           } else {
-            router.push("/employer/getpay"); // Redirigir al dashboard de usuario
+            router.push("/employer/makepay"); // Redirigir al dashboard de usuario
           }
         } else {
           setError(roleResponse.message);

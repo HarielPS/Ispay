@@ -1,7 +1,15 @@
+"use client"
 import React from 'react'
+import { Box, useTheme } from '@mui/material'
+import getColor from '@/themes/colorUtils'
+import PaymentForm from './components/pago'
 
-export default function makePay() {
+export default function Makepay() {
+  const theme = useTheme();
   return (
-    <div>makePay</div>
+    <Box sx={{background:getColor(theme,'background')}}>
+      getPay
+      <PaymentForm/>
+    </Box>
   )
 }

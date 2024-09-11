@@ -19,6 +19,8 @@ import Image from "next/image";
 import { any } from "./helpers/any.navbar";
 import { company } from "./helpers/company.navbar";
 import { signup } from "./helpers/signup.navbar";
+import { employ } from "./helpers/employer.navbar";
+
 
 export default function Navbar({ toggleTheme }) {
   const theme = useTheme(); 
@@ -80,6 +82,8 @@ export default function Navbar({ toggleTheme }) {
       setMenuItems(mapItems(company)); 
     } else if (pathname.startsWith("/auth")) {
       setMenuItems(mapItems(signup));
+    } else if (pathname.startsWith("/employer")) {
+      setMenuItems(mapItems(employ));
     } else {
       setMenuItems(mapItems(any));
     }

@@ -169,7 +169,7 @@ export default function UserSafetyInfo({ params }) {
         life: 3000,
       });
   
-      router.push("/employer/getpay");  // Redirigir a la página principal
+      router.push("/employer/makepay");  // Redirigir a la página principal
     } catch (error) {
       console.error("Error al actualizar los datos:", error);
       toast.current.show({
