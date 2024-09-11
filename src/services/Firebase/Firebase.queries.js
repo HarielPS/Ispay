@@ -124,10 +124,10 @@ FBQueries.GetUserRole = async (uid) => {
 
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        console.log("Rol del usuario encontrado:", userData.role);
+        console.log("ADMIN del usuario encontrado:", userData.ADMIN);
         return {
           success: true,
-          role: userData.role, 
+          role: userData.ADMIN, 
           companyTaxID,
         };
       }

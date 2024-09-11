@@ -15,6 +15,7 @@ import { Google as GoogleIcon, Apple as AppleIcon } from "@mui/icons-material";
 import getColor from '@/themes/colorUtils';
 import { useTheme } from '@mui/material';
 import { FBQueries } from "@/services/Firebase/Firebase.queries";
+import { useRouter } from "next/navigation";
 
 const frases = [
   { "text": "La planificación financiera es el arte de proyectar el futuro en cifras, y los negocios son el arte de convertir esas cifras en realidad.", "author": "Anónimo" },
@@ -32,6 +33,7 @@ const frases = [
 
 const Login = () => {
   const theme = useTheme();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null); // Para mostrar mensajes de error
@@ -75,7 +77,6 @@ const Login = () => {
 
       if (response.success) {
         const user = response.user;
-        const empresa = await FBQueries.GetSpecificCompany("Lego");
 
         // 2. Obtener el rol del usuario desde Firestore
         const roleResponse = await FBQueries.GetUserRole(response.user.uid);
@@ -84,12 +85,10 @@ const Login = () => {
           const userRole = roleResponse.role;
 
           // 3. Redirigir según el rol
-          if (userRole === "ADMIN") {
-            window.location.href = "/company/dashboard/home"; // Redirigir al dashboard de admin
-          } else if (userRole === "USER") {
-            window.location.href = "/user-dashboard"; // Redirigir al dashboard de usuario
+          if (userRole === "true") {
+            router.push("/company/dashboard/home"); // Redirigir al dashboard de admin
           } else {
-            window.location.href = "/dashboard"; // Redirigir a un dashboard por defecto
+            router.push("/employer/getpay"); // Redirigir al dashboard de usuario
           }
         } else {
           setError(roleResponse.message);
