@@ -7,7 +7,7 @@ IsPay is a business wallet based on blockchain technology, designed to efficient
 ## What is IsPay?
 IsPay is a comprehensive solution for managing corporate payments on blockchain. The company creates a main wallet that is managed by one or several administrators. From this main wallet, sub-wallets are created for employees, which are directly linked to the company's wallet. Administrators can control fund allocation, usage restrictions, permitted payments, and time limits, providing precise and flexible control over employee spending, both in general and for specific cases.
 
-![explanation IsPay](./public/readme/admincreate1.jpge)
+![explanation IsPay](https://raw.githubusercontent.com/Champagnepagcois/ispay/readme/public/readme/admincreate1.jpeg?token=GHSAT0AAAAAACPSYISKBBRN3LRPNYOV2CQSZXB47QA)
 
 ### Key Features
 
@@ -21,4 +21,4 @@ IsPay is a comprehensive solution for managing corporate payments on blockchain.
     - **Permitted Categories**: The employee's account can be configured so that funds can only be used for specific expense categories (e.g., transportation, meals, lodging, office supplies). This ensures that employees can only spend on authorized items.
     - **Temporal Restrictions (Time and Days)**: Time restrictions can be set to limit both the hours and days when employees are allowed to make transactions.
 
-![explanation IsPay](./public/readme/admincreate2.jpge)
+![explanation IsPay](https://raw.githubusercontent.com/Champagnepagcois/ispay/readme/public/readme/admincreate2.jpeg?token=GHSAT0AAAAAACPSYISL4V3GX7MR3HATF6S6ZXB5FHQ)
