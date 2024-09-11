@@ -1,6 +1,7 @@
 import { createUserWithEmailAndPassword } from "firebase/auth"; 
 import { doc, setDoc } from "firebase/firestore"; 
 import { auth, db } from "../Firebase";
+import emailjs from 'emailjs-com';  // Asegúrate de importar emailjs
 import { sendCustomVerificationEmail } from "@/app/company/dashboard/newAccount/helpers/sendEmail";
 
 export default class User {
@@ -56,15 +57,11 @@ export default class User {
       await setDoc(UserRef, userData);
 
       // Enviar correo de verificación con el UID en el enlace
-      // await sendCustomVerificationEmail(user, uid);
-
-
+      await sendCustomVerificationEmail(user, uid);
 
       // await sendMail(user.email, uid, userData.ID_company_tax);
-          // En lugar de llamar directamente a la función sendMail, hacemos una solicitud fetch a la API Route
-      // Aquí es donde llamamos a la API para enviar el correo
-      await this.sendMail(user.email, uid, userData.ID_company_tax);
-
+    // 4. Enviar correo de verificación utilizando EmailJS
+    await this.sendMail(user.email, uid, userData.ID_company_tax);
 
       // 4. Retornar éxito
       return {
@@ -80,33 +77,31 @@ export default class User {
       };
     }
   }
-   // Aquí es donde llamamos a la API para enviar el correo
-   async sendMail(email, uid, ID_company_tax) {
-    try {
-      const response = await fetch('/api/sendEmail', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, uid, ID_company_tax }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Error en la respuesta de la API');
-      }
+  // Función para enviar el correo utilizando EmailJS
+  async sendMail(email, uid, ID_company_tax) {
+    // Datos que enviaremos a la plantilla de EmailJS
+    const templateParams = {
+      to_name: email,  // destinatario
+      verification_link: `https://ispay.netlify.app/validateData/${uid}?ID_company_tax=${ID_company_tax}`,  // Link de verificación
+    };
 
-      const data = await response.json();
-      if (data.success) {
-        console.log('Correo enviado con éxito:', data.message);
-      } else {
-        console.error('Error enviando correo:', data.message);
-      }
+    try {
+      // Llamada a la función send de EmailJS
+      const result = await emailjs.send(
+        'service_2nw506a',  // Service ID de EmailJS
+        'template_8jgqngl', // Template ID de EmailJS
+        templateParams,
+        'QQ5e1W4_Vf_EEpyJl'      // User ID de EmailJS
+      );
+
+      console.log('Correo enviado con éxito:', result);
     } catch (error) {
-      console.error('Error llamando a la API:', error);
-      throw new Error('Error al llamar a la API de envío de correo.');
+      console.error('Error enviando correo:', error);
+      throw new Error('Error al enviar el correo');
     }
   }
 }
+
 
 // Función para generar una contraseña temporal
 export const generateTemporaryPassword = (length = 12) => {

@@ -16,9 +16,9 @@ import { useLocalStorage } from "primereact/hooks";
 import User from "@/services/Firebase/models/User";
 import EmployeeAccount from "@/services/Firebase/models/EmployeeAccounts";
 import { useRouter } from "next/navigation";
-import { generateTemporaryPassword, handleCreateAccount } from "./helpers/sendEmail";
-import { createUserWithEmailAndPassword } from "firebase/auth"; 
-import { auth } from "@/services/Firebase/Firebase";
+// import { generateTemporaryPassword, handleCreateAccount } from "./helpers/sendEmail";
+// import { createUserWithEmailAndPassword } from "firebase/auth"; 
+// import { auth } from "@/services/Firebase/Firebase";
 
 
 export default function newAccount() {
