@@ -7,8 +7,8 @@ import PaymentForm from './components/pago'
 export default function Makepay() {
   const theme = useTheme();
   return (
-    <Box sx={{background:getColor(theme,'background')}}>
-      getPay
+    // getColor(theme,'background')
+    <Box sx={{background:'red'}}>
       <PaymentForm/>
     </Box>
   )

@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import getColor from "@/themes/colorUtils";
 import { useTheme } from "@mui/material";
 import { FBQueries } from "@/services/Firebase/Firebase.queries";
+import { useLocalStorage } from "primereact/hooks";
 
 export default function Page() {
   const theme = useTheme();
@@ -21,6 +22,11 @@ export default function Page() {
   // Aquí se almacenan los archivos para subir
   const [companyImageFile, setCompanyImageFile] = useState(null);
   const [userImageFile, setUserImageFile] = useState(null);
+  // useLocalStorage para almacenar la información en localStorage
+  const [dataCompanyLocalS, setDataCompanyLocalS] = useLocalStorage(null, "dataCompany");
+  const [dataAdminLocalS, setDataAdminLocalS] = useLocalStorage(null, "dataAdmin");
+  const [userUIDLocalS, setUserUIDLocalS] = useLocalStorage(null, "userUID"); 
+
 
   // Information for company and user, including profileImg here
   const [companyInformation, setCompanyInformation] = useState({
@@ -119,7 +125,7 @@ export default function Page() {
     setLoading(true);
   
     if (validateFields()) {
-      console.log("Company Information: ", companyInformation); // Verificar los datos de la empresa
+      console.log("Company Information: ", companyInformation);
       try {
         const signupResult = await FBQueries.SignupCompany(
           companyInformation,  // Datos de la empresa
@@ -128,7 +134,16 @@ export default function Page() {
           companyImageFile,  // Imagen de la empresa
           userImageFile  // Imagen del usuario
         );
-  
+        
+        // Guardar en localStorage después de un registro exitoso
+        setDataCompanyLocalS(companyInformation);
+        setDataAdminLocalS(generalUserInformation);
+
+        // Guardar el UID del usuario en localStorage
+        if (signupResult.success && signupResult.uid) {
+          setUserUIDLocalS(signupResult.uid); 
+        }
+
         if (signupResult.success) {
           toast.current.show({
             severity: "success",
@@ -136,10 +151,18 @@ export default function Page() {
             detail: signupResult.message,
             life: 2000,
           });
-          router.replace("/company/dashboard/home");
-          // setTimeout(() => {
-          //   router.replace("/company/dashboard/home");
-          // }, 2000);
+
+          // Comprobar si los datos están guardados y redirigir
+          const checkDataSaved = setInterval(() => {
+            const savedCompany = dataCompanyLocalS;
+            const savedAdmin = dataAdminLocalS;
+            const savedUID = userUIDLocalS;
+            
+            if (savedCompany && savedAdmin && savedUID) {
+              clearInterval(checkDataSaved);
+                router.replace("/company/dashboard/home");
+            }
+          }, 500);
         }
       } catch (error) {
         console.error("Error al registrar:", error);

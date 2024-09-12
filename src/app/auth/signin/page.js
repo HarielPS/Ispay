@@ -72,21 +72,25 @@ const Login = () => {
     console.log("Email:", email, "Password:", password);
 
     try {
-      // 1. Llamar a la función de Firebase para iniciar sesión
       const response = await FBQueries.Login(email, password);
 
       if (response.success) {
         const user = response.user;
 
-        // 2. Obtener el rol del usuario desde Firestore
         const roleResponse = await FBQueries.GetUserRole(response.user.uid);
 
         if (roleResponse.success) {
           const userRole = roleResponse.role;
 
-          // 3. Redirigir según el rol
-          if (userRole === "true") {
-            router.push("/company/dashboard/home"); // Redirigir al dashboard de admin
+          if (userRole === true) {
+            const companyData = await FBQueries.GetSpecificCompany(roleResponse.companyTaxID,response.user.uid);
+
+          if (companyData) {
+            router.push("/company/dashboard/home");
+            } else {
+              setError("No se pudo recuperar la información de la empresa.");
+            }
+
           } else {
             router.push("/employer/makepay"); // Redirigir al dashboard de usuario
           }

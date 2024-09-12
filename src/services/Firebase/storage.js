@@ -1,0 +1,3 @@
+removeLocalStorageItem("userUID");
+clearLocalStorage();
+

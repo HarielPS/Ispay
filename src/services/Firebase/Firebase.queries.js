@@ -98,6 +98,7 @@ FBQueries.SignupCompany = async (companyData, userSafetyInfo, userData, companyI
 
     return {
       success: true,
+      uid: user.uid,
       message: "Empresa y usuario registrados correctamente en Firebase Authentication y Firestore.",
     };
   } catch (error) {
@@ -192,18 +193,69 @@ FBQueries.ListCompaniesWithErrorHandling = async () => {
   }
 };
 
-FBQueries.GetSpecificCompany = async (companyID) => {
+FBQueries.GetSpecificCompany = async (companyID,uid) => {
   try {
-    const companyRef = doc(db, "EMPRESAS", companyID); // Referencia directa al documento "Lego"
+    // Obtener la referencia al documento de la empresa
+    const companyRef = doc(db, "EMPRESAS", companyID);
     const companyDoc = await getDoc(companyRef);
 
-    if (companyDoc.exists()) {
-      console.log(`Empresa encontrada con ID ${companyID}:`, companyDoc.data());
-      return companyDoc.data();
-    } else {
+
+    if (!companyDoc.exists()) {
       console.log(`No se encontró una empresa con el ID ${companyID}`);
+      return null;
     }
+
+    // Recuperar los datos de la empresa
+    const companyData = companyDoc.data();
+    console.log("compañia:"+ companyData);
+
+    // Obtener la colección del usuario
+    const usersCollectionRef = doc(db, "EMPRESAS", companyID, "USUARIO", uid);
+    const userDoc = await getDoc(usersCollectionRef);
+
+    if (!userDoc.exists()) {
+      console.log(`No se encontró un usuario con el UID ${uid}`);
+      return null;
+    }
+    const UserData = userDoc.data();
+    console.log("Usuario:"+ UserData);
+
+    // Datos que necesitas en localStorage para la empresa
+    const dataCompany = {
+      ID_company_tax: companyData.ID_company_tax || '',
+      company_name: companyData.company_name || '',
+      legal_company_name: companyData.legal_company_name || '',
+      company_headquarters: companyData.company_headquarters || {},
+      website: companyData.website || '',
+      number_employees: companyData.number_employees || '',
+      company_description: companyData.company_description || '',
+      wallet: companyData.wallet || ''
+    };
+
+    const dataAdmin = {
+      ID_company_tax: companyData.ID_company_tax || '', //
+      ID_FB: UserData ? UserData.ID_FB || '' : '', // 
+      ID_user: UserData ? UserData.ID_user || '' : '',//
+      name: UserData ? UserData.name || '' : '', //
+      surname: UserData ? UserData.surname || '' : '',
+      work_email: UserData ? UserData.work_email || '' : '',
+      role: UserData ? UserData.role || '' : '', //
+      ADMIN: UserData ? UserData.ADMIN || false : false, //
+      image: UserData ? UserData.image || '' : '', //
+      phone_number: UserData ? UserData.phone_number || '' : '',//
+      password: UserData ? UserData.password || '' : '', //
+      ssn: UserData ? UserData.ssn || '' : '',
+      work_location: UserData ? UserData.work_location || {} : {}
+    };
+
+    // Guardar en localStorage
+    localStorage.setItem('dataCompany', JSON.stringify(dataCompany));
+    localStorage.setItem('dataAdmin', JSON.stringify(dataAdmin));
+    localStorage.setItem("userUID", uid); 
+
+    return { ...companyData };
   } catch (error) {
     console.error("Error al obtener la empresa:", error.message);
+    return null;
   }
 };
