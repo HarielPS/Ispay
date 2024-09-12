@@ -1,61 +1,64 @@
-import React, { useState } from 'react';
-import { QrReader } from 'react-qr-reader';
+import React, { useState, useEffect } from 'react';
+import { QrReader } from '@react-qr/scanner';
 
-const QrReaderComponent = () => {
-  const [qrData, setQrData] = useState(null);
+const QrCodeScanner = () => {
+  const [devices, setDevices] = useState([]);
+  const [selectedDevice, setSelectedDevice] = useState(null);
 
-  const handleScan = (data) => {
-    if (data) {
-      try {
-        const parsedData = JSON.parse(data);
-        const { walletDestino, monto, walletProviene, token, descripcion } = parsedData;
-
-        // Imprimir los datos desestructurados en la consola
-        console.log("Destino:", walletDestino);
-        console.log("Monto:", monto);
-        console.log("Desde:", walletProviene);
-        console.log("Token:", token);
-        console.log("Descripción:", descripcion);
-
-        setQrData(parsedData);
-      } catch (error) {
-        console.error("Error al procesar el QR:", error);
+  useEffect(() => {
+    // Obtener la lista de dispositivos de video (cámaras)
+    navigator.mediaDevices.enumerateDevices().then((mediaDevices) => {
+      const videoDevices = mediaDevices.filter(
+        (device) => device.kind === 'videoinput'
+      );
+      setDevices(videoDevices);
+      // Selecciona la primera cámara por defecto (usualmente la cámara trasera en móviles)
+      if (videoDevices.length > 0) {
+        setSelectedDevice(videoDevices[0].deviceId);
       }
+    });
+  }, []);
+
+  const handleScan = (result) => {
+    if (result) {
+      console.log(result.text); // Muestra el texto del código QR
     }
   };
 
   const handleError = (error) => {
-    console.error("Error leyendo el QR:", error);
+    console.error(error);
+  };
+
+  const handleDeviceChange = (event) => {
+    setSelectedDevice(event.target.value);
   };
 
   return (
     <div>
-      <h3>Escanea el código QR</h3>
-      <QrReader
-        onResult={(result, error) => {
-          if (!!result) {
-            handleScan(result?.text);
-          }
+      <h3>Selecciona la cámara:</h3>
+      <select onChange={handleDeviceChange} value={selectedDevice}>
+        {devices.map((device, idx) => (
+          <option key={idx} value={device.deviceId}>
+            {device.label || `Cámara ${idx + 1}`}
+          </option>
+        ))}
+      </select>
 
-          if (!!error) {
-            handleError(error);
-          }
-        }}
-        style={{ width: '100%' }}
-      />
-      
-      {qrData && (
-        <div>
-          <h4>Datos Escaneados:</h4>
-          <p><strong>Destino:</strong> {qrData.walletDestino}</p>
-          <p><strong>Monto:</strong> {qrData.monto}</p>
-          <p><strong>Desde:</strong> {qrData.walletProviene}</p>
-          <p><strong>Token:</strong> {qrData.token}</p>
-          <p><strong>Descripción:</strong> {qrData.descripcion}</p>
-        </div>
+      {selectedDevice && (
+        <QrReader
+          onResult={(result, error) => {
+            if (result) {
+              handleScan(result);
+            } else if (error) {
+              handleError(error);
+            }
+          }}
+          constraints={{ video: { deviceId: selectedDevice } }} // Selecciona la cámara según la opción elegida
+          style={{ width: '300px' }}
+        />
       )}
     </div>
   );
 };
 
-export default QrReaderComponent;
+export default QrCodeScanner;

@@ -2,7 +2,7 @@ import React from 'react';
 import { TextField,Typography, Button, Grid, Checkbox, FormControlLabel, Box } from '@mui/material';
 import getColor from '@/themes/colorUtils';
 import { useTheme } from '@mui/material';
-import QrReaderComponent from './getpayqr';
+// import QrReaderComponent from './getpayqr';
 
 const PaymentForm = () => {
     const theme=useTheme();
