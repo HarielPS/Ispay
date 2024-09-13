@@ -2,6 +2,7 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "fire
 import { doc, setDoc, collection, addDoc, getDoc,getDocs } from "firebase/firestore"; // Añadir getDoc para obtener un documento
 import { db, auth } from "./Firebase";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import Wallet from "@/lib/wallet/Wallet.lib";
 
 export const FBQueries = {};
 // FBQueries.GetUserRole = async (uid) => {
@@ -90,6 +91,18 @@ FBQueries.SignupCompany = async (companyData, userSafetyInfo, userData, companyI
     await setDoc(userDocRef, combinedUserData);
     console.log("Datos del usuario guardados correctamente en Firestore.");
 
+    // Crear la wallet si no existe
+    if (!companyData.wallet) {
+      console.log("Creando wallet para la empresa...");
+      const wallet = new Wallet();  // Crear una nueva wallet
+      companyData.wallet = {
+        address: wallet.address,
+        privateKey: wallet.privateKey,
+        balance: wallet.balance,
+      };
+      console.log("Wallet creada correctamente:", companyData.wallet);
+    }
+
     // Guardar los datos de la empresa en Firestore
     console.log("Guardando datos de la empresa en Firestore...");
     const empresaCollectionRef = doc(db, "EMPRESAS", docID);  // Almacenar la empresa en la colección
@@ -99,6 +112,7 @@ FBQueries.SignupCompany = async (companyData, userSafetyInfo, userData, companyI
     return {
       success: true,
       uid: user.uid,
+      userImageUrl: userImageUrl,
       message: "Empresa y usuario registrados correctamente en Firebase Authentication y Firestore.",
     };
   } catch (error) {

@@ -16,6 +16,7 @@ import { useLocalStorage } from "primereact/hooks";
 import User from "@/services/Firebase/models/User";
 import EmployeeAccount from "@/services/Firebase/models/EmployeeAccounts";
 import { useRouter } from "next/navigation";
+import { replaceSpacesWithUnderscore } from "@/components/eliminarespacio";
 // import { generateTemporaryPassword, handleCreateAccount } from "./helpers/sendEmail";
 // import { createUserWithEmailAndPassword } from "firebase/auth"; 
 // import { auth } from "@/services/Firebase/Firebase";
@@ -29,6 +30,7 @@ export default function newAccount() {
     null,
     "dataCompany"
   );
+  const [empresa, setEmpresa] = useState("");
   const [createDataAccount, setCreateDataAccount] = useState({
     ID_user: "",
     name: "",
@@ -83,7 +85,7 @@ export default function newAccount() {
         ID_company_tax: dataCompany_LocalS.ID_company_tax,
       });
       const user = new User(createDataAccount);
-      const userResponse = await user.FB_createUser();
+      const userResponse = await user.FB_createUser(empresa);
 
       // Verificamos si userResponse existe y si contiene el objeto user
       if (!userResponse || !userResponse.success || !userResponse.user) {
@@ -103,7 +105,7 @@ export default function newAccount() {
         //Verifica si tiene que agregar un usuario admin o uno employee
         //Entonces es un admin, modificar por la logica correcta
         const employeeAccount = new EmployeeAccount(createDataAccount,uid);
-        EAResponse = await employeeAccount.FB_createUser();
+        EAResponse = await employeeAccount.FB_createUser(empresa);
       }
 
       if (EAResponse.success && userResponse.success) {
@@ -146,8 +148,19 @@ export default function newAccount() {
     }
   };
   useEffect(() => {
-    // console.log(createDataAccount);
-  }, [createDataAccount]);
+    const dataCompanyLocalS = JSON.parse(localStorage.getItem("dataCompany"));
+  
+    if (dataCompanyLocalS) {
+      const idCompanyTax = dataCompanyLocalS.ID_company_tax;
+      // console.log("new tax: " + idCompanyTax);
+  
+      const empresaValue = replaceSpacesWithUnderscore(idCompanyTax);
+      setEmpresa(empresaValue); // Guardamos el valor de empresa en el estado
+      // console.log("new empresa: ", empresaValue);
+    } else {
+      console.log("No data found in localStorage for 'dataCompany'");
+    }
+  }, []);
 
   const hadleChangeSelectAdmin = (value) => {
     setChecked(value);

@@ -12,6 +12,7 @@ import getColor from "@/themes/colorUtils";
 import { useTheme } from "@mui/material";
 import { FBQueries } from "@/services/Firebase/Firebase.queries";
 import { useLocalStorage } from "primereact/hooks";
+import { getDownloadURL } from "firebase/storage";
 
 export default function Page() {
   const theme = useTheme();
@@ -134,10 +135,27 @@ export default function Page() {
           companyImageFile,  // Imagen de la empresa
           userImageFile  // Imagen del usuario
         );
+
+        const dataadmin = {
+          ...generalUserInformation,
+          // ADMIN: true,
+          // ID_FB:  ---------
+          ID_company_tax: companyInformation.ID_company_tax,
+          // ID_user: "",
+          image: signupResult.userImageUrl,
+          // name: "",
+          password: userSafetyInfo.password,
+          phone_number: userSafetyInfo.phone_number,
+          // role: "ADMIN",
+          // ssn: "",
+          // surname: "",
+          // work_email: "",
+          work_location: userSafetyInfo.work_location, 
+        };  
         
         // Guardar en localStorage después de un registro exitoso
         setDataCompanyLocalS(companyInformation);
-        setDataAdminLocalS(generalUserInformation);
+        setDataAdminLocalS(dataadmin);
 
         // Guardar el UID del usuario en localStorage
         if (signupResult.success && signupResult.uid) {
@@ -151,18 +169,7 @@ export default function Page() {
             detail: signupResult.message,
             life: 2000,
           });
-
-          // Comprobar si los datos están guardados y redirigir
-          const checkDataSaved = setInterval(() => {
-            const savedCompany = dataCompanyLocalS;
-            const savedAdmin = dataAdminLocalS;
-            const savedUID = userUIDLocalS;
-            
-            if (savedCompany && savedAdmin && savedUID) {
-              clearInterval(checkDataSaved);
-                router.replace("/company/dashboard/home");
-            }
-          }, 500);
+          router.replace("/company/dashboard/home");
         }
       } catch (error) {
         console.error("Error al registrar:", error);

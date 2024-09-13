@@ -19,12 +19,18 @@ import { company } from "./helpers/company.navbar";
 import { signup } from "./helpers/signup.navbar";
 import { employ } from "./helpers/employer.navbar";
 
+// Importar Firestore y funciones para acceder a la base de datos
+import { doc, getDoc } from "firebase/firestore"; 
+import { db } from "@/services/Firebase/Firebase";
+
 export default function Navbar({ toggleTheme }) {
   const theme = useTheme(); 
   const router = useRouter();
   const pathname = usePathname();
   const [menuItems, setMenuItems] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [img, setImg] = useState("");
+
 
   // Manejo del menú desplegable
   const handleAvatarClick = (event) => {
@@ -106,6 +112,36 @@ export default function Navbar({ toggleTheme }) {
     }
   }, [pathname]);
 
+  useEffect(() => {
+    const userUID = localStorage.getItem("userUID");
+    const dataCompany = JSON.parse(localStorage.getItem("dataCompany"));
+
+    if (userUID && dataCompany?.ID_company_tax) {
+      const ID_company_tax = dataCompany.ID_company_tax;
+
+      // Buscar el documento del usuario en Firestore
+      const fetchUserImage = async () => {
+        try {
+          const userDocRef = doc(db, "EMPRESAS", ID_company_tax, "USUARIO", userUID);
+          const userDoc = await getDoc(userDocRef);
+
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            if (userData.image) {
+              setImg(userData.image); 
+            }
+          } else {
+            console.log("El documento del usuario no existe.");
+          }
+        } catch (error) {
+          console.error("Error al recuperar la imagen del usuario:", error);
+        }
+      };
+
+      fetchUserImage(); 
+    }
+  }, []);
+
   const appBarPosition = pathname === "/" ? "fixed" : "relative";
   const logoSrc = theme.palette.mode === 'light' ? '/logo_light.png' : '/logo_dark.png';
 
@@ -158,7 +194,7 @@ export default function Navbar({ toggleTheme }) {
           <Box sx={{ display: 'flex', gap: 2 }}>
             <Box sx={{display:'flex', alignItems:'center'}}>
               <IconButton onClick={handleAvatarClick}>
-                <Avatar alt="user avatar" src="https://primefaces.org/cdn/primereact/images/avatar/amyelsner.png" />
+                <Avatar alt="user avatar" src={img || "/path/to/default-avatar.png"}  />
               </IconButton>
               <ThemeToggle toggleTheme={toggleTheme} />       
             </Box>

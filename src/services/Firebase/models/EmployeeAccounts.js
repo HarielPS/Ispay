@@ -59,18 +59,18 @@ export default class EmployeeAccount {
     };
   }
 
-  async FB_createUser() {
+  async FB_createUser(empresa) {
     const EmployeeAccountData = this.toJSON();
     const docID = EmployeeAccountData.ID_company_tax;
     try {
-      console.log("Company tax ID actual:", this.ID_company_tax);  // Cambié esto
+      console.log("Company tax ID actual:", this.ID_company_tax);
       console.log("EmployeeAccount ID_company_tax: " + this.ID_company_tax);
       console.log("EmployeeAccount uid: " + this.uid);
       
       const EmployeeAccountRef = doc(
         db,
         "EMPRESAS",
-        this.ID_company_tax,
+        empresa,
         "EmployeeAccount",
         this.uid
       );

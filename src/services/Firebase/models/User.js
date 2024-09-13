@@ -3,6 +3,7 @@ import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "../Firebase";
 import emailjs from 'emailjs-com';  // Asegúrate de importar emailjs
 import { sendCustomVerificationEmail } from "@/app/company/dashboard/newAccount/helpers/sendEmail";
+import { replaceSpacesWithUnderscore } from "@/components/eliminarespacio";
 
 export default class User {
   static methods = {};
@@ -41,28 +42,34 @@ export default class User {
     };
   }
 
-  async FB_createUser() {
+  async FB_createUser(empresa) {
     const userData = this.toJSON();
     const email = userData.work_email;
     const password = generateTemporaryPassword();
     console.log("Contraseña temporal generada: ", password);
-
+  
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       const uid = user.uid; 
       userData.UID = uid;
 
-      const UserRef = doc(db, "EMPRESAS", userData.ID_company_tax, "USUARIO", uid);
-      await setDoc(UserRef, userData);
+      // Limpieza de `empresa` o `ID_company_tax` para evitar problemas
+    const empresaLimpia = cleanDocID(userData.ID_company_tax);
+    console.log("ID de la Empresa (limpio):", empresaLimpia);
 
+      const UserRef = doc(db, "EMPRESAS", empresaLimpia, "USUARIO", uid);
+      await setDoc(UserRef, userData);
+  
+
+      // const UserRef = doc(db, "EMPRESAS", empresa, "USUARIO", uid);
+      // await setDoc(UserRef, userData);
       // Enviar correo de verificación con el UID en el enlace
       await sendCustomVerificationEmail(user, uid);
-
-    // 4. Enviar correo de verificación utilizando EmailJS
-    await this.sendMail(user.email, uid, userData.ID_company_tax);
-
-      // 4. Retornar éxito
+  
+      // Enviar correo de verificación utilizando EmailJS
+      await this.sendMail(user.email, uid, userData.ID_company_tax);
+  
       return {
         success: true,
         user,
@@ -75,7 +82,7 @@ export default class User {
         message: `Error al registrar el usuario: ${error.message}`,
       };
     }
-  }
+  }  
   // Función para enviar el correo utilizando EmailJS
   async sendMail(email, uid, ID_company_tax) {
     // Datos que enviaremos a la plantilla de EmailJS
@@ -101,6 +108,11 @@ export default class User {
   }
 }
 
+const cleanDocID = (id) => {
+  if (!id) return "";
+  // Elimina espacios, tabulaciones, saltos de línea y otros caracteres invisibles
+  return id.trim().replace(/[\s\t\n]+/g, "_");
+};
 
 // Función para generar una contraseña temporal
 export const generateTemporaryPassword = (length = 12) => {
