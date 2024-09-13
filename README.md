@@ -24,3 +24,17 @@ IsPay is a comprehensive solution for managing corporate payments on blockchain.
 ![explanation IsPay](https://github.com/Champagnepagcois/ispay/blob/readme/public/readme/admincreate1.jpeg?raw=true)
 
 ![explanation IsPay](https://github.com/Champagnepagcois/ispay/blob/readme/public/readme/admincreate2.jpeg?raw=true)
+
+
+
+# Zetachain
+
+Our contract to deposit money to companies is at the address
+
+🚀 **Successfully deployed contract on `zeta_testnet`.**
+
+📜 **Contract address:** `0x1eb7a50b505d856D3CE63D978E961457AE1EBefb`
+
+🌍 **ZetaScan:** [https://athens.explorer.zetachain.com/address/0x1eb7a50b505d856D3CE63D978E961457AE1EBefb](https://athens.explorer.zetachain.com/address/0x1eb7a50b505d856D3CE63D978E961457AE1EBefb)
+
+🌍 **Blockscout:** [https://zetachain-athens-3.blockscout.com/address/0x1eb7a50b505d856D3CE63D978E961457AE1EBefb](https://zetachain-athens-3.blockscout.com/address/0x1eb7a50b505d856D3CE63D978E961457AE1EBefb)
